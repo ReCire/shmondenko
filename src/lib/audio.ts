@@ -16,13 +16,24 @@ const getContext = (): AudioContext | null => {
 
 export const unlockAudio = async (): Promise<void> => {
   const c = getContext()
-  if (c && c.state === 'suspended') {
+  if (!c) return
+  // On mobile browsers the context can be 'suspended' or 'interrupted' after a
+  // user gesture or backgrounding. Resume whenever it is not already running.
+  if (c.state !== 'running' && c.state !== 'closed') {
     try {
       await c.resume()
     } catch {
       /* ignore — browser refused without gesture */
     }
   }
+}
+
+// Re-attempt to resume the audio context when the tab returns to the
+// foreground — it may have been suspended while the app was backgrounded.
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) void unlockAudio()
+  })
 }
 
 interface BeepOptions {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useTransform } from 'framer-motion'
 import { Check, ChevronsLeft, ChevronsRight, Pause, Play, Square, X } from 'lucide-react'
 import type { Workout } from '../data/types'
@@ -57,7 +57,17 @@ export function WorkoutPlayer({ workout }: Props) {
     onComplete: (secs) => logCompletion(workout, secs),
   })
 
-  const [detailExercise, setDetailExercise] = useState(null as string | null)
+  const [detailRequest, setDetailRequest] = useState<{ name: string; openedAt: number } | null>(null)
+
+  // The detail overlay is only valid for the step it was opened on. If the timer
+  // advances, the overlay unmounts without pausing, resetting, or touching the
+  // workout state machine.
+  const detailExercise = detailRequest?.openedAt === timer.stepIndex ? detailRequest.name : null
+  const openDetail = useCallback(
+    (name: string) => setDetailRequest({ name, openedAt: timer.stepIndex }),
+    [timer.stepIndex],
+  )
+  const closeDetail = useCallback(() => setDetailRequest(null), [])
 
   // Auto-start: the Preview's BEGIN SESSION tap already unlocked audio, so the
   // session (and its "Get Ready" fill) begins the moment this screen mounts.
@@ -117,7 +127,7 @@ export function WorkoutPlayer({ workout }: Props) {
         transition={{ duration: 0.6 }}
       >
         {/* Layer A — unfilled: light type on dark */}
-        <Scene timer={timer} workout={workout} variant="dark" onExit={exit} onViewTechnique={setDetailExercise} />
+        <Scene timer={timer} workout={workout} variant="dark" onExit={exit} onViewTechnique={openDetail} />
 
         {/* Layer B — fill: gradient with ink type, revealed bottom-to-top */}
         <motion.div
@@ -129,7 +139,7 @@ export function WorkoutPlayer({ workout }: Props) {
             style={{ y: contentY, background: theme.gradient, willChange: 'transform' }}
             className="absolute inset-0"
           >
-            <Scene timer={timer} workout={workout} variant="light" onExit={exit} onViewTechnique={setDetailExercise} />
+            <Scene timer={timer} workout={workout} variant="light" onExit={exit} onViewTechnique={openDetail} />
           </motion.div>
         </motion.div>
 
@@ -160,7 +170,7 @@ export function WorkoutPlayer({ workout }: Props) {
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="theme-dark fixed inset-0 z-50 overflow-y-auto"
           >
-            <ExerciseDetail exerciseName={detailExercise} onBack={() => setDetailExercise(null)} />
+            <ExerciseDetail exerciseName={detailExercise} onBack={closeDetail} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -326,6 +336,8 @@ function ActiveScene({
               key={nextWorkStep.exerciseName}
               exerciseName={nextWorkStep.exerciseName}
               info={nextInfo}
+              duration={step.duration}
+              remaining={timer.remaining}
               onViewTechnique={() => onViewTechnique(nextWorkStep.exerciseName)}
               variant={variant}
               muted={muted}
@@ -386,18 +398,38 @@ function ControlButton({
 function RecoveryCard({
   exerciseName,
   info,
+  duration,
+  remaining,
   onViewTechnique,
   variant,
   muted,
 }: {
   exerciseName: string
   info: ExerciseInfo | null
+  duration: number
+  remaining: number
   onViewTechnique: () => void
   variant: 'dark' | 'light'
   muted: string
 }) {
-  const cues = info?.cues?.length ? info.cues : info?.setup.slice(0, 3) ?? []
   const fg = variant === 'dark' ? 'text-paper' : 'text-ink'
+
+  const sections = useMemo(() => {
+    if (!info) return []
+    const out: { title: string; items: string[] }[] = []
+    if (info.setup.length > 0) out.push({ title: 'SETUP', items: info.setup })
+    if (info.execution.length > 0) out.push({ title: 'EXECUTION', items: info.execution })
+    if (info.commonMistakes.length > 0) out.push({ title: 'COMMON ERRORS', items: info.commonMistakes })
+    if (info.safety && info.safety.length > 0) out.push({ title: 'SAFETY', items: info.safety })
+    return out
+  }, [info])
+
+  const sectionDuration = sections.length ? duration / sections.length : 0
+  const elapsed = duration - remaining
+  const sectionIndex = sections.length
+    ? Math.min(sections.length - 1, Math.floor(elapsed / sectionDuration))
+    : 0
+  const section = sections[sectionIndex]
 
   return (
     <motion.div
@@ -419,15 +451,29 @@ function RecoveryCard({
           <p className={cn('mt-1 font-mono text-[10px] tracking-[0.25em]', muted)}>
             {info.muscles.slice(0, 3).join(' · ')} {info.category && `· ${info.category.toUpperCase()}`}
           </p>
-          {cues.length > 0 && (
-            <ol className="mt-3 space-y-1.5">
-              {cues.slice(0, 3).map((cue, i) => (
-                <li key={i} className="flex items-start gap-3 text-left">
-                  <span className={cn('w-5 shrink-0 font-mono text-[10px] tabular', muted)}>{String(i + 1).padStart(2, '0')}</span>
-                  <span className={cn('text-sm font-medium leading-snug', fg)}>{cue}</span>
-                </li>
-              ))}
-            </ol>
+          {section && (
+            <div className={cn('mt-4 border-t pt-3', variant === 'dark' ? 'border-paper/15' : 'border-ink/15')}>
+              <p className={cn('font-mono text-[10px] tracking-[0.35em]', muted)}>TECHNICAL BRIEFING</p>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={section.title}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <h4 className={cn('mt-1 font-mono text-[11px] tracking-[0.35em]', fg)}>{section.title}</h4>
+                  <ol className="mt-2 space-y-1.5">
+                    {section.items.map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-left">
+                        <span className={cn('w-5 shrink-0 font-mono text-[10px] tabular', muted)}>{String(i + 1).padStart(2, '0')}</span>
+                        <span className={cn('text-sm font-medium leading-snug', fg)}>{item}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           )}
         </>
       ) : (

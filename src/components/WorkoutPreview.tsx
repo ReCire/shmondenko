@@ -146,9 +146,11 @@ export function WorkoutPreview({ workout }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.3 }}
           whileTap={{ scale: 0.985 }}
-          onClick={() => {
-            // The player auto-starts, so this tap is the user gesture that unlocks Web Audio.
-            unlockAudio().catch(() => {})
+          onClick={async () => {
+            // The player auto-starts, so this tap is the user gesture that
+            // unlocks Web Audio. Give resume() a brief moment to settle, then
+            // navigate so the gesture has already been consumed in the unlock call.
+            await Promise.race([unlockAudio(), new Promise<void>((resolve) => setTimeout(resolve, 500))]).catch(() => {})
             navigate({ name: 'player', workoutId: workout.id })
           }}
           className="flex w-full items-center justify-center gap-3 bg-soviet py-6 text-xl font-black uppercase tracking-[0.25em] text-paper shadow-[0_16px_48px_-12px_rgba(200,16,46,0.8)]"
