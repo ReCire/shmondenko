@@ -2,9 +2,9 @@ import { useEffect, useMemo, type ReactNode } from 'react'
 import { AnimatePresence, motion, useTransform } from 'framer-motion'
 import { Check, ChevronsLeft, ChevronsRight, Pause, Play, Square, X } from 'lucide-react'
 import type { Workout } from '../data/types'
-import { useWorkoutTimer, type TimerStep, type WorkoutTimer } from '../hooks/useWorkoutTimer'
+import { isPrepStep, useWorkoutTimer, type TimerStep, type WorkoutTimer } from '../hooks/useWorkoutTimer'
 import { useAppStore } from '../store/useAppStore'
-import { cn, estimateWorkoutSeconds, formatClock, formatDuration, totalSets } from '../lib/utils'
+import { cn, formatClock, totalSets } from '../lib/utils'
 
 /* ---------- Theme ---------- */
 
@@ -46,11 +46,20 @@ export function WorkoutPlayer({ workout }: Props) {
   const navigate = useAppStore((s) => s.navigate)
   const soundEnabled = useAppStore((s) => s.soundEnabled)
   const logCompletion = useAppStore((s) => s.logCompletion)
+  const prepTime = useAppStore((s) => s.prepTime)
 
   const timer = useWorkoutTimer(workout, {
     soundEnabled,
+    prepTime,
     onComplete: (secs) => logCompletion(workout, secs),
   })
+
+  // Auto-start: the Preview's BEGIN SESSION tap already unlocked audio, so the
+  // session (and its "Get Ready" fill) begins the moment this screen mounts.
+  const { status, start } = timer
+  useEffect(() => {
+    if (status === 'idle') start()
+  }, [status, start])
 
   const themeKey = timer.status === 'idle' ? 'idle' : timer.status === 'finished' ? 'finished' : timer.step?.kind ?? 'work'
   const theme = THEMES[themeKey]
@@ -64,8 +73,7 @@ export function WorkoutPlayer({ workout }: Props) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === ' ') {
         e.preventDefault()
-        if (timer.status === 'idle') timer.start()
-        else if (timer.status === 'running') timer.pause()
+        if (timer.status === 'running') timer.pause()
         else if (timer.status === 'paused') timer.resume()
       } else if (e.key === 'ArrowRight') timer.skip()
       else if (e.key === 'ArrowLeft') timer.back()
@@ -140,7 +148,6 @@ interface SceneProps {
 function Scene({ timer, workout, variant, onExit }: SceneProps) {
   const fg = variant === 'dark' ? 'text-paper' : 'text-ink'
   const muted = variant === 'dark' ? 'text-paper/50' : 'text-ink/55'
-  const line = variant === 'dark' ? 'border-paper/20' : 'border-ink/25'
   const btn = variant === 'dark' ? 'border-paper/25 active:bg-paper/10' : 'border-ink/30 active:bg-ink/10'
 
   return (
@@ -164,71 +171,11 @@ function Scene({ timer, workout, variant, onExit }: SceneProps) {
         <div className="w-11" />
       </div>
 
-      {timer.status === 'idle' && <IdleScene timer={timer} workout={workout} muted={muted} line={line} variant={variant} />}
       {(timer.status === 'running' || timer.status === 'paused') && timer.step && (
         <ActiveScene timer={timer} step={timer.step} muted={muted} btn={btn} variant={variant} />
       )}
       {timer.status === 'finished' && <FinishedScene timer={timer} workout={workout} muted={muted} variant={variant} />}
     </div>
-  )
-}
-
-/* ---------- Idle ---------- */
-
-function IdleScene({
-  timer,
-  workout,
-  muted,
-  line,
-  variant,
-}: {
-  timer: WorkoutTimer
-  workout: Workout
-  muted: string
-  line: string
-  variant: 'dark' | 'light'
-}) {
-  return (
-    <>
-      <div className="flex flex-1 flex-col justify-center px-8">
-        <p className={cn('font-mono text-[11px] tracking-[0.35em]', muted)}>{workout.subtitle ?? 'CUSTOM SESSION'}</p>
-        <h1 className="mt-2 break-words text-[clamp(2.5rem,12vw,4.5rem)] font-black uppercase leading-[0.9] tracking-tighter">{workout.name}</h1>
-        {workout.focus && <p className={cn('mt-3 text-lg', muted)}>{workout.focus}</p>}
-
-        <ul className={cn('mt-10 divide-y border-y', line, variant === 'dark' ? 'divide-paper/20' : 'divide-ink/25')}>
-          {workout.blocks.map((b, i) => (
-            <li key={b.id} className="flex items-baseline justify-between py-3">
-              <span className="flex items-baseline gap-3">
-                <span className={cn('font-mono text-xs tabular', muted)}>{String(i + 1).padStart(2, '0')}</span>
-                <span className="text-xl font-bold uppercase tracking-tight">{b.name}</span>
-              </span>
-              <span className={cn('font-mono text-xs tabular', muted)}>
-                {b.sets}× {b.mode === 'time' ? `${b.workSeconds}s` : `${b.reps} reps`} / {b.restSeconds}s
-              </span>
-            </li>
-          ))}
-        </ul>
-        <div className={cn('mt-4 flex gap-5 font-mono text-xs tabular', muted)}>
-          <span>{totalSets(workout)} SETS</span>
-          <span>~{formatDuration(estimateWorkoutSeconds(workout)).toUpperCase()}</span>
-          {workout.loop && <span>LOOPS</span>}
-        </div>
-      </div>
-
-      <div className="px-8 pb-2">
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.985 }}
-          onClick={timer.start}
-          className={cn(
-            'flex w-full items-center justify-center gap-3 py-6 text-xl font-black uppercase tracking-[0.25em]',
-            variant === 'dark' ? 'bg-soviet text-paper' : 'bg-ink text-paper',
-          )}
-        >
-          <Play size={20} fill="currentColor" /> Begin
-        </motion.button>
-      </div>
-    </>
   )
 }
 
@@ -247,6 +194,7 @@ function ActiveScene({
   btn: string
   variant: 'dark' | 'light'
 }) {
+  const isPrep = isPrepStep(step)
   const isRest = step.kind === 'rest'
   const isReps = step.mode === 'reps'
   const paused = timer.status === 'paused'
@@ -258,8 +206,8 @@ function ActiveScene({
     return next.exerciseName.toUpperCase()
   }, [next])
 
-  const headline = isRest ? 'Rest' : step.exerciseName
-  const setLine = `SET ${step.setIndex + 1} OF ${step.totalSets}`
+  const headline = isPrep ? 'Get Ready' : isRest ? 'Rest' : step.exerciseName
+  const setLine = isPrep ? 'INITIALIZING' : `SET ${step.setIndex + 1} OF ${step.totalSets} · ${timer.setsRemaining} LEFT`
 
   return (
     <>
@@ -270,7 +218,7 @@ function ActiveScene({
           animate={{ opacity: 1, y: 0 }}
           className={cn('font-mono text-xs tracking-[0.4em]', muted)}
         >
-          {isRest ? `UP NEXT · ${nextLabel}` : isReps ? `${step.reps} REPS` : 'WORK'}
+          {isPrep ? `PREPARE · ${nextLabel}` : isRest ? `UP NEXT · ${nextLabel}` : isReps ? `${step.reps} REPS` : 'WORK'}
         </motion.p>
 
         <motion.h1
@@ -300,9 +248,7 @@ function ActiveScene({
         </div>
 
         <div className={cn('mt-4 flex flex-col items-center gap-1 font-mono text-xs tracking-[0.3em]', muted)}>
-          <span>
-            {setLine} · {timer.setsRemaining} LEFT
-          </span>
+          <span>{setLine}</span>
           {!isRest && <span>NEXT · {nextLabel}</span>}
         </div>
 
