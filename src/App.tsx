@@ -6,6 +6,7 @@ import { WorkoutCreator } from './components/WorkoutCreator'
 import { WorkoutPreview } from './components/WorkoutPreview'
 import { WorkoutPlayer } from './components/WorkoutPlayer'
 import { Settings } from './components/Settings'
+import { ExerciseDetail } from './components/ExerciseDetail'
 import { ConfirmDialog } from './components/ConfirmDialog'
 
 const screenTransition = {
@@ -75,6 +76,11 @@ export default function App() {
         {screen.name === 'settings' && (
           <motion.div key="settings" {...screenTransition}>
             <Settings />
+          </motion.div>
+        )}
+        {screen.name === 'exercise' && (
+          <motion.div key={`exercise-${screen.exerciseName}`} {...screenTransition}>
+            <ExerciseDetail exerciseName={screen.exerciseName} onBack={() => navigate(screen.returnTo)} />
           </motion.div>
         )}
       </AnimatePresence>

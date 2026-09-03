@@ -19,6 +19,7 @@ export type Screen =
   | { name: 'preview'; workoutId: string }
   | { name: 'player'; workoutId: string }
   | { name: 'settings' }
+  | { name: 'exercise'; exerciseName: string; returnTo: Screen }
 
 interface AppState {
   screen: Screen

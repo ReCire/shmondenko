@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowLeft, Pencil, Play, Repeat } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Pencil, Play, Repeat } from 'lucide-react'
 import type { Workout } from '../data/types'
 import { PROGRAM_TRACKS } from '../data/stockWorkouts'
 import { useAppStore } from '../store/useAppStore'
@@ -98,7 +98,21 @@ export function WorkoutPreview({ workout }: Props) {
               <motion.li key={b.id} variants={item} className="flex items-stretch gap-4 py-4">
                 <span className="w-8 shrink-0 pt-1 font-mono text-xs tabular text-paper/40">{String(i + 1).padStart(2, '0')}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-2xl font-bold uppercase leading-none tracking-tight">{b.name}</p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate({
+                        name: 'exercise',
+                        exerciseName: b.name,
+                        returnTo: { name: 'preview', workoutId: workout.id },
+                      })
+                    }
+                    aria-label={`Open technique for ${b.name}`}
+                    className="group flex w-full items-center gap-1 text-left transition-colors hover:text-paper/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-paper/50"
+                  >
+                    <span className="text-2xl font-bold uppercase leading-none tracking-tight">{b.name}</span>
+                    <ChevronRight size={18} className="text-paper/30 transition-transform group-active:translate-x-1" />
+                  </button>
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] tabular text-paper/55">
                     <span>
                       <span className="text-paper">{b.sets}</span> SETS

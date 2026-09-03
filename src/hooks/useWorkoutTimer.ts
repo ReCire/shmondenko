@@ -103,6 +103,15 @@ export const buildSteps = (workout: Workout, prepTime = 0): TimerStep[] => {
   return steps
 }
 
+/** Find the next WORK step after the current index. */
+export const findNextWorkStep = (workout: Workout, prepTime: number, currentStepIndex: number): TimerStep | null => {
+  const steps = buildSteps(workout, prepTime)
+  for (let i = currentStepIndex + 1; i < steps.length; i++) {
+    if (steps[i].kind === 'work') return steps[i]
+  }
+  return null
+}
+
 export function useWorkoutTimer(
   workout: Workout,
   { soundEnabled = true, prepTime = 3, onComplete }: Options = {},

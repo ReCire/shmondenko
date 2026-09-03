@@ -1,10 +1,12 @@
-import { useEffect, useMemo, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion, useTransform } from 'framer-motion'
 import { Check, ChevronsLeft, ChevronsRight, Pause, Play, Square, X } from 'lucide-react'
 import type { Workout } from '../data/types'
-import { isPrepStep, useWorkoutTimer, type TimerStep, type WorkoutTimer } from '../hooks/useWorkoutTimer'
+import { findNextWorkStep, isPrepStep, useWorkoutTimer, type TimerStep, type WorkoutTimer } from '../hooks/useWorkoutTimer'
 import { useAppStore } from '../store/useAppStore'
 import { cn, formatClock, totalSets } from '../lib/utils'
+import { getExerciseInfo } from '../data/exercises'
+import { ExerciseDetail } from './ExerciseDetail'
 
 /* ---------- Theme ---------- */
 
@@ -54,6 +56,8 @@ export function WorkoutPlayer({ workout }: Props) {
     prepTime,
     onComplete: (secs) => logCompletion(workout, secs),
   })
+
+  const [detailExercise, setDetailExercise] = useState<string | null>(null)
 
   // Auto-start: the Preview's BEGIN SESSION tap already unlocked audio, so the
   // session (and its "Get Ready" fill) begins the moment this screen mounts.
@@ -112,7 +116,7 @@ export function WorkoutPlayer({ workout }: Props) {
       transition={{ duration: 0.6 }}
     >
       {/* Layer A — unfilled: light type on dark */}
-      <Scene timer={timer} workout={workout} variant="dark" onExit={exit} />
+      <Scene timer={timer} workout={workout} variant="dark" onExit={exit} onViewTechnique={setDetailExercise} />
 
       {/* Layer B — fill: gradient with ink type, revealed bottom-to-top */}
       <motion.div
@@ -124,7 +128,7 @@ export function WorkoutPlayer({ workout }: Props) {
           style={{ y: contentY, background: theme.gradient, willChange: 'transform' }}
           className="absolute inset-0"
         >
-          <Scene timer={timer} workout={workout} variant="light" onExit={exit} />
+          <Scene timer={timer} workout={workout} variant="light" onExit={exit} onViewTechnique={setDetailExercise} />
         </motion.div>
       </motion.div>
 
@@ -153,9 +157,10 @@ interface SceneProps {
   workout: Workout
   variant: 'dark' | 'light'
   onExit: () => void
+  onViewTechnique: (name: string) => void
 }
 
-function Scene({ timer, workout, variant, onExit }: SceneProps) {
+function Scene({ timer, workout, variant, onExit, onViewTechnique }: SceneProps) {
   const fg = variant === 'dark' ? 'text-paper' : 'text-ink'
   const muted = variant === 'dark' ? 'text-paper/50' : 'text-ink/55'
   const btn = variant === 'dark' ? 'border-paper/25 active:bg-paper/10' : 'border-ink/30 active:bg-ink/10'
@@ -182,7 +187,16 @@ function Scene({ timer, workout, variant, onExit }: SceneProps) {
       </div>
 
       {(timer.status === 'running' || timer.status === 'paused') && timer.step && (
-        <ActiveScene timer={timer} step={timer.step} muted={muted} btn={btn} variant={variant} onExit={onExit} />
+        <ActiveScene
+          timer={timer}
+          step={timer.step}
+          workout={workout}
+          muted={muted}
+          btn={btn}
+          variant={variant}
+          onExit={onExit}
+          onViewTechnique={onViewTechnique}
+        />
       )}
       {timer.status === 'finished' && <FinishedScene timer={timer} workout={workout} muted={muted} variant={variant} />}
     </div>
