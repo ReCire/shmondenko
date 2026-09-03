@@ -5,7 +5,7 @@ import type { Workout } from '../data/types'
 import { findNextWorkStep, isPrepStep, useWorkoutTimer, type TimerStep, type WorkoutTimer } from '../hooks/useWorkoutTimer'
 import { useAppStore } from '../store/useAppStore'
 import { cn, formatClock, totalSets } from '../lib/utils'
-import { getExerciseInfo } from '../data/exercises'
+import { getExerciseInfo, type ExerciseInfo } from '../data/exercises'
 import { ExerciseDetail } from './ExerciseDetail'
 
 /* ---------- Theme ---------- */
@@ -57,7 +57,7 @@ export function WorkoutPlayer({ workout }: Props) {
     onComplete: (secs) => logCompletion(workout, secs),
   })
 
-  const [detailExercise, setDetailExercise] = useState<string | null>(null)
+  const [detailExercise, setDetailExercise] = useState(null as string | null)
 
   // Auto-start: the Preview's BEGIN SESSION tap already unlocked audio, so the
   // session (and its "Get Ready" fill) begins the moment this screen mounts.
@@ -110,43 +110,61 @@ export function WorkoutPlayer({ workout }: Props) {
   }
 
   return (
-    <motion.div
-      className="theme-dark fixed inset-0 overflow-hidden select-none"
-      animate={{ backgroundColor: theme.base }}
-      transition={{ duration: 0.6 }}
-    >
-      {/* Layer A — unfilled: light type on dark */}
-      <Scene timer={timer} workout={workout} variant="dark" onExit={exit} onViewTechnique={setDetailExercise} />
-
-      {/* Layer B — fill: gradient with ink type, revealed bottom-to-top */}
+    <div className="fixed inset-0">
       <motion.div
-        aria-hidden
-        style={{ y: windowY, willChange: 'transform' }}
-        className="absolute inset-0 overflow-hidden"
+        className="theme-dark fixed inset-0 overflow-hidden select-none"
+        animate={{ backgroundColor: theme.base }}
+        transition={{ duration: 0.6 }}
       >
+        {/* Layer A — unfilled: light type on dark */}
+        <Scene timer={timer} workout={workout} variant="dark" onExit={exit} onViewTechnique={setDetailExercise} />
+
+        {/* Layer B — fill: gradient with ink type, revealed bottom-to-top */}
         <motion.div
-          style={{ y: contentY, background: theme.gradient, willChange: 'transform' }}
-          className="absolute inset-0"
+          aria-hidden
+          style={{ y: windowY, willChange: 'transform' }}
+          className="absolute inset-0 overflow-hidden"
         >
-          <Scene timer={timer} workout={workout} variant="light" onExit={exit} onViewTechnique={setDetailExercise} />
+          <motion.div
+            style={{ y: contentY, background: theme.gradient, willChange: 'transform' }}
+            className="absolute inset-0"
+          >
+            <Scene timer={timer} workout={workout} variant="light" onExit={exit} onViewTechnique={setDetailExercise} />
+          </motion.div>
         </motion.div>
+
+        {/* Step-change flash */}
+        <AnimatePresence>
+          {timer.status === 'running' && (
+            <motion.div
+              key={`${timer.round}-${timer.stepIndex}`}
+              initial={{ opacity: 0.85 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
+              style={{ backgroundColor: theme.flash }}
+              className="pointer-events-none absolute inset-0"
+            />
+          )}
+        </AnimatePresence>
       </motion.div>
 
-      {/* Step-change flash */}
+      {/* Exercise detail overlay — keeps the timer running while reading. */}
       <AnimatePresence>
-        {timer.status === 'running' && (
+        {detailExercise && (
           <motion.div
-            key={`${timer.round}-${timer.stepIndex}`}
-            initial={{ opacity: 0.85 }}
-            animate={{ opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-            style={{ backgroundColor: theme.flash }}
-            className="pointer-events-none absolute inset-0"
-          />
+            key="exercise-detail"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="theme-dark fixed inset-0 z-50 overflow-y-auto"
+          >
+            <ExerciseDetail exerciseName={detailExercise} onBack={() => setDetailExercise(null)} />
+          </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   )
 }
 
@@ -208,23 +226,33 @@ function Scene({ timer, workout, variant, onExit, onViewTechnique }: SceneProps)
 function ActiveScene({
   timer,
   step,
+  workout,
   muted,
   btn,
   variant,
   onExit,
+  onViewTechnique,
 }: {
   timer: WorkoutTimer
   step: TimerStep
+  workout: Workout
   muted: string
   btn: string
   variant: 'dark' | 'light'
   onExit: () => void
+  onViewTechnique: (name: string) => void
 }) {
   const isPrep = isPrepStep(step)
   const isRest = step.kind === 'rest'
   const isReps = step.mode === 'reps'
   const paused = timer.status === 'paused'
   const next = timer.nextStep
+  const prepTime = useAppStore((s) => s.prepTime)
+  const nextWorkStep = useMemo(
+    () => findNextWorkStep(workout, prepTime, timer.stepIndex),
+    [workout, prepTime, timer.stepIndex],
+  )
+  const nextInfo = nextWorkStep ? getExerciseInfo(nextWorkStep.exerciseName) : null
 
   const nextLabel = useMemo(() => {
     if (!next) return 'FINISH'
@@ -291,6 +319,19 @@ function ActiveScene({
             <Check size={18} strokeWidth={3} /> Set Done
           </motion.button>
         )}
+
+        <AnimatePresence mode="wait">
+          {isRest && !isPrep && nextWorkStep && (
+            <RecoveryCard
+              key={nextWorkStep.exerciseName}
+              exerciseName={nextWorkStep.exerciseName}
+              info={nextInfo}
+              onViewTechnique={() => onViewTechnique(nextWorkStep.exerciseName)}
+              variant={variant}
+              muted={muted}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Controls */}
@@ -337,6 +378,75 @@ function ControlButton({
     >
       {children}
     </motion.button>
+  )
+}
+
+/* ---------- Recovery Card ---------- */
+
+function RecoveryCard({
+  exerciseName,
+  info,
+  onViewTechnique,
+  variant,
+  muted,
+}: {
+  exerciseName: string
+  info: ExerciseInfo | null
+  onViewTechnique: () => void
+  variant: 'dark' | 'light'
+  muted: string
+}) {
+  const cues = info?.cues?.length ? info.cues : info?.setup.slice(0, 3) ?? []
+  const fg = variant === 'dark' ? 'text-paper' : 'text-ink'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        'mt-6 w-full max-w-sm border p-4',
+        variant === 'dark'
+          ? 'border-paper/20 bg-ink/70 backdrop-blur-sm'
+          : 'border-ink/25 bg-paper/80 backdrop-blur-sm',
+      )}
+    >
+      <p className={cn('font-mono text-[10px] tracking-[0.35em]', muted)}>NEXT MOVEMENT</p>
+      <h3 className={cn('mt-1 text-2xl font-black uppercase leading-none tracking-tight', fg)}>{exerciseName}</h3>
+      {info ? (
+        <>
+          <p className={cn('mt-1 font-mono text-[10px] tracking-[0.25em]', muted)}>
+            {info.muscles.slice(0, 3).join(' · ')} {info.category && `· ${info.category.toUpperCase()}`}
+          </p>
+          {cues.length > 0 && (
+            <ol className="mt-3 space-y-1.5">
+              {cues.slice(0, 3).map((cue, i) => (
+                <li key={i} className="flex items-start gap-3 text-left">
+                  <span className={cn('w-5 shrink-0 font-mono text-[10px] tabular', muted)}>{String(i + 1).padStart(2, '0')}</span>
+                  <span className={cn('text-sm font-medium leading-snug', fg)}>{cue}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </>
+      ) : (
+        <p className={cn('mt-2 text-xs', muted)}>Detailed instructions unavailable.</p>
+      )}
+      <button
+        type="button"
+        onClick={onViewTechnique}
+        aria-label={`View full technique for ${exerciseName}`}
+        className={cn(
+          'mt-4 w-full py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition-colors border',
+          variant === 'dark'
+            ? 'border-paper/25 text-paper hover:bg-paper/10'
+            : 'border-ink/30 text-ink hover:bg-ink/10',
+        )}
+      >
+        View Technique
+      </button>
+    </motion.div>
   )
 }
 
