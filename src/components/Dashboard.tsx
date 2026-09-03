@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { Dumbbell, Flame, Home, Plus, TreePine, Volume2, VolumeX } from 'lucide-react'
+import { Dumbbell, Flame, Home, Plus, Settings2, TreePine } from 'lucide-react'
 import { PROGRAM_TRACKS, STOCK_PHASES, STOCK_WORKOUTS, phaseLabel, phaseTheme } from '../data/stockWorkouts'
 import type { ProgramTrack, Workout } from '../data/types'
 import { useAppStore } from '../store/useAppStore'
-import { cn, computeStreak, localDateKey } from '../lib/utils'
+import { cn, computeCurrentPhase, computeStreak, localDateKey } from '../lib/utils'
 import { WorkoutCard } from './WorkoutCard'
+import { FuelGuide } from './FuelGuide'
 
-type Tab = 'stock' | 'custom'
+type Tab = 'stock' | 'custom' | 'fuel'
 
 const TRACK_ICONS: Record<ProgramTrack, typeof Home> = { home: Home, outdoors: TreePine, gym: Dumbbell }
 
@@ -15,8 +16,7 @@ export function Dashboard() {
   const [tab, setTab] = useState<Tab>('stock')
   const customWorkouts = useAppStore((s) => s.customWorkouts)
   const logs = useAppStore((s) => s.logs)
-  const soundEnabled = useAppStore((s) => s.soundEnabled)
-  const toggleSound = useAppStore((s) => s.toggleSound)
+  const phaseOverride = useAppStore((s) => s.manualPhaseOverride)
   const navigate = useAppStore((s) => s.navigate)
   const deleteWorkout = useAppStore((s) => s.deleteWorkout)
   const activeProgram = useAppStore((s) => s.activeProgram)
@@ -24,6 +24,7 @@ export function Dashboard() {
 
   const streak = useMemo(() => computeStreak(logs), [logs])
   const trainedToday = useMemo(() => logs.some((l) => l.date === localDateKey()), [logs])
+  const currentPhase = useMemo(() => computeCurrentPhase(logs, phaseOverride), [logs, phaseOverride])
   const last7 = useMemo(() => {
     const days = new Set(logs.map((l) => l.date))
     return Array.from({ length: 7 }, (_, i) => {
@@ -45,7 +46,7 @@ export function Dashboard() {
       key={w.id}
       workout={w}
       index={i}
-      onStart={() => navigate({ name: 'player', workoutId: w.id })}
+      onStart={() => navigate({ name: 'preview', workoutId: w.id })}
       onEdit={w.isStock ? undefined : () => navigate({ name: 'creator', editId: w.id })}
       onDelete={
         w.isStock
@@ -67,14 +68,19 @@ export function Dashboard() {
             Shmondenko
             <span className="text-soviet">.</span>
           </h1>
+          <p className="mt-2 flex items-center gap-2 font-mono text-[10px] tracking-[0.25em] text-paper/55">
+            <span className="h-1.5 w-1.5 bg-soviet" />
+            CURRENT PHASE · {currentPhase.toUpperCase()}
+            {phaseOverride && <span className="text-paper/35">· MANUAL</span>}
+          </p>
         </div>
         <button
           type="button"
-          onClick={toggleSound}
-          aria-label={soundEnabled ? 'Mute cues' : 'Unmute cues'}
+          onClick={() => navigate({ name: 'settings' })}
+          aria-label="Settings"
           className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center border border-paper/15 text-paper/60 active:bg-paper/10"
         >
-          {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          <Settings2 size={16} />
         </button>
       </header>
 
@@ -166,6 +172,7 @@ export function Dashboard() {
             [
               ['stock', `STOCK · ${activeProgram.toUpperCase()}`],
               ['custom', `CUSTOM${customWorkouts.length ? ` · ${customWorkouts.length}` : ''}`],
+              ['fuel', 'FUEL'],
             ] as [Tab, string][]
           ).map(([key, label]) => (
             <button
@@ -173,7 +180,8 @@ export function Dashboard() {
               type="button"
               onClick={() => setTab(key)}
               className={cn(
-                'relative flex-1 pb-3 font-mono text-[11px] tracking-[0.25em] transition-colors',
+                'relative pb-3 font-mono text-[11px] tracking-[0.25em] transition-colors',
+                key === 'fuel' ? 'w-16 shrink-0' : 'flex-1',
                 tab === key ? 'text-paper' : 'text-paper/40',
               )}
             >
@@ -204,13 +212,22 @@ export function Dashboard() {
                 return (
                   <section key={phase} className="flex flex-col gap-3">
                     <div className="flex items-baseline gap-3 border-b border-paper/15 pb-2">
-                      <h2 className="font-mono text-[11px] tracking-[0.2em] text-paper/70">{phaseLabel(phase).toUpperCase()}</h2>
+                      <h2 className={cn('font-mono text-[11px] tracking-[0.2em]', phase === currentPhase ? 'text-paper' : 'text-paper/70')}>
+                        {phaseLabel(phase).toUpperCase()}
+                      </h2>
+                      {phase === currentPhase && (
+                        <span className="bg-soviet px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.2em] text-paper">CURRENT</span>
+                      )}
                       <span className="ml-auto shrink-0 font-mono text-[10px] tracking-[0.15em] text-paper/40">{phaseTheme(phase).toUpperCase()}</span>
                     </div>
                     {days.map(renderCard)}
                   </section>
                 )
               })}
+            </motion.div>
+          ) : tab === 'fuel' ? (
+            <motion.div key="fuel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <FuelGuide />
             </motion.div>
           ) : list.length === 0 ? (
             <motion.div

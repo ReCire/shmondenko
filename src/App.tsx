@@ -3,7 +3,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useAppStore } from './store/useAppStore'
 import { Dashboard } from './components/Dashboard'
 import { WorkoutCreator } from './components/WorkoutCreator'
+import { WorkoutPreview } from './components/WorkoutPreview'
 import { WorkoutPlayer } from './components/WorkoutPlayer'
+import { Settings } from './components/Settings'
 
 const screenTransition = {
   initial: { opacity: 0, y: 12 },
@@ -17,12 +19,13 @@ export default function App() {
   const getWorkout = useAppStore((s) => s.getWorkout)
   const navigate = useAppStore((s) => s.navigate)
 
-  const workout = screen.name === 'player' ? getWorkout(screen.workoutId) : undefined
+  const needsWorkout = screen.name === 'player' || screen.name === 'preview'
+  const workout = needsWorkout ? getWorkout(screen.workoutId) : undefined
 
-  // Guard against a stale player route (e.g. workout was deleted).
+  // Guard against a stale route (e.g. workout was deleted).
   useEffect(() => {
-    if (screen.name === 'player' && !workout) navigate({ name: 'dashboard' })
-  }, [screen, workout, navigate])
+    if (needsWorkout && !workout) navigate({ name: 'dashboard' })
+  }, [needsWorkout, workout, navigate])
 
   return (
     <AnimatePresence mode="wait">
@@ -36,9 +39,19 @@ export default function App() {
           <WorkoutCreator editId={screen.editId} />
         </motion.div>
       )}
+      {screen.name === 'preview' && workout && (
+        <motion.div key={`preview-${workout.id}`} {...screenTransition}>
+          <WorkoutPreview workout={workout} />
+        </motion.div>
+      )}
       {screen.name === 'player' && workout && (
         <motion.div key={`player-${workout.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <WorkoutPlayer workout={workout} />
+        </motion.div>
+      )}
+      {screen.name === 'settings' && (
+        <motion.div key="settings" {...screenTransition}>
+          <Settings />
         </motion.div>
       )}
     </AnimatePresence>
