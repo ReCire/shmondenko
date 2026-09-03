@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Helvetica Neue", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, monospace;
+
+  --color-ink: #050505;
+  --color-paper: #f4f1ea;
+  --color-soviet: #c8102e;
+  --color-soviet-deep: #7a0a1c;
+  --color-ember: #ff4e1a;
+  --color-slate-cool: #4a5a6e;
+  --color-slate-deep: #1e2733;
+  --color-ice: #b8cbe0;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    min-height: 100dvh;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  button {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  input,
+  select {
+    color-scheme: dark;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility safe-pt {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+}
+
+@utility safe-pb {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+@utility blend-difference {
+  mix-blend-mode: difference;
+}
