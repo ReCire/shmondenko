@@ -254,6 +254,7 @@ export function Dashboard() {
       </main>
 
       {/* FAB */}
+      {tab !== 'fuel' && (
       <motion.button
         type="button"
         whileTap={{ scale: 0.92 }}
@@ -263,6 +264,7 @@ export function Dashboard() {
       >
         <Plus size={30} strokeWidth={2.5} />
       </motion.button>
+      )}
     </div>
   )
 }

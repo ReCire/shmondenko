@@ -28,7 +28,7 @@ export function FuelGuide() {
         <div className="mt-4 flex items-end justify-between border-t border-paper/20 pt-3">
           <div>
             <p className="font-mono text-[10px] tracking-[0.3em] text-paper/45">DAILY TARGET</p>
-            <p className="text-3xl font-black tabular tracking-tighter">
+            <p className="whitespace-nowrap text-[clamp(1.5rem,7vw,1.875rem)] font-black tabular tracking-tighter">
               3,200<span className="text-paper/40">–</span>3,500
               <span className="ml-2 font-mono text-xs font-normal tracking-widest text-paper/60">KCAL</span>
             </p>
