@@ -71,7 +71,7 @@ export function WorkoutPreview({ workout }: Props) {
         <motion.section variants={item} className="relative border-l-[6px] pl-5">
           <span className={cn('absolute -left-[6px] inset-y-0 w-[6px]', PHASE_ACCENT[workout.phase])} />
           <p className="font-mono text-[11px] tracking-[0.3em] text-paper/45">{PHASE_LABEL[workout.phase].toUpperCase()}</p>
-          <h1 className="mt-2 break-words text-[clamp(2.75rem,13vw,4.5rem)] font-black uppercase leading-[0.88] tracking-tighter">
+          <h1 className="mt-2 text-[clamp(2rem,9.5vw,3.5rem)] font-black uppercase leading-[0.9] tracking-tighter">
             {workout.name}
           </h1>
           {workout.focus && <p className="mt-3 text-lg text-paper/60">{workout.focus}</p>}
