@@ -271,7 +271,11 @@ function ActiveScene({
   }, [next])
 
   const headline = isPrep ? 'Get Ready' : isRest ? 'Rest' : step.exerciseName
-  const setLine = isPrep ? 'INITIALIZING' : `SET ${step.setIndex + 1} OF ${step.totalSets} · ${timer.setsRemaining} LEFT`
+  const setLine = isPrep
+    ? 'INITIALIZING'
+    : isRest && nextWorkStep
+      ? `SET ${nextWorkStep.setIndex + 1} OF ${nextWorkStep.totalSets} · ${nextWorkStep.totalSets - nextWorkStep.setIndex} LEFT`
+      : `SET ${step.setIndex + 1} OF ${step.totalSets} · ${timer.setsRemaining} LEFT`
 
   return (
     <>
@@ -463,6 +467,18 @@ function RecoveryCard({
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <h4 className={cn('mt-1 font-mono text-[11px] tracking-[0.35em]', fg)}>{section.title}</h4>
+                  <div className="mt-2 flex justify-center gap-1.5">
+                    {sections.map((_, i) => (
+                      <span
+                        key={i}
+                        className={cn(
+                          'h-1.5 w-1.5 rounded-full bg-current',
+                          fg,
+                          i === sectionIndex ? 'opacity-100' : 'opacity-30',
+                        )}
+                      />
+                    ))}
+                  </div>
                   <ol className="mt-2 space-y-1.5">
                     {section.items.map((item, i) => (
                       <li key={i} className="flex items-start gap-3 text-left">
