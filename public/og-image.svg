@@ -29,7 +29,7 @@
   <text x="300" y="132" font-family="'SF Mono', Menlo, 'Courier New', monospace" font-size="20" letter-spacing="7" fill="#f4f1ea" fill-opacity="0.55">ШМОНДЕНКО · SOVIET PERIODISATION</text>
 
   <!-- Title -->
-  <text x="292" y="262" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="132" letter-spacing="-6" fill="#f4f1ea">SHMONDENKO<tspan fill="#c8102e">.</tspan></text>
+  <text x="294" y="258" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="112" letter-spacing="-5" fill="#f4f1ea">SHMONDENKO<tspan fill="#c8102e">.</tspan></text>
 
   <!-- Subtitle -->
   <text x="300" y="318" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="-0.5" fill="#f4f1ea" fill-opacity="0.75">A brutalist workout timer. Accumulate. Intensify. Realise.</text>
