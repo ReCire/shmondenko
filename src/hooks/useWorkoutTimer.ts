@@ -6,8 +6,14 @@ import { cueComplete, cueCountdown, cueWorkEnd, cueWorkStart, unlockAudio } from
 export type StepKind = 'work' | 'rest'
 export type TimerStatus = 'idle' | 'running' | 'paused' | 'finished'
 
+/** `blockIndex` of the synthetic "Get Ready" step that precedes the first exercise. */
+export const PREP_BLOCK_INDEX = -1
+
+export const isPrepStep = (step: TimerStep | null): boolean => step?.blockIndex === PREP_BLOCK_INDEX
+
 export interface TimerStep {
   kind: StepKind
+  /** Index into `workout.blocks`, or PREP_BLOCK_INDEX for the prep countdown. */
   blockIndex: number
   /** 0-based set index within the block. */
   setIndex: number
@@ -46,11 +52,13 @@ export interface WorkoutTimer {
 
 interface Options {
   soundEnabled?: boolean
+  /** Seconds of "Get Ready" countdown before the first exercise. 0 disables it. */
+  prepTime?: number
   onComplete?: (totalElapsedSeconds: number) => void
 }
 
 /** Flatten a workout into an ordered list of work/rest steps. */
-export const buildSteps = (workout: Workout): TimerStep[] => {
+export const buildSteps = (workout: Workout, prepTime = 0): TimerStep[] => {
   const steps: TimerStep[] = []
   workout.blocks.forEach((b, blockIndex) => {
     for (let setIndex = 0; setIndex < b.sets; setIndex++) {
@@ -80,11 +88,28 @@ export const buildSteps = (workout: Workout): TimerStep[] => {
       }
     }
   })
+  if (prepTime > 0 && steps.length > 0) {
+    steps.unshift({
+      kind: 'rest',
+      blockIndex: PREP_BLOCK_INDEX,
+      setIndex: -1,
+      exerciseName: 'Get Ready',
+      mode: 'time',
+      duration: prepTime,
+      reps: 0,
+      totalSets: 0,
+    })
+  }
   return steps
 }
 
-export function useWorkoutTimer(workout: Workout, { soundEnabled = true, onComplete }: Options = {}): WorkoutTimer {
-  const steps = useMemo(() => buildSteps(workout), [workout])
+export function useWorkoutTimer(
+  workout: Workout,
+  { soundEnabled = true, prepTime = 3, onComplete }: Options = {},
+): WorkoutTimer {
+  const steps = useMemo(() => buildSteps(workout, prepTime), [workout, prepTime])
+  // Where a loop restarts: after the prep step, if there is one.
+  const loopStartIndex = isPrepStep(steps[0] ?? null) ? 1 : 0
 
   const [status, setStatus] = useState<TimerStatus>('idle')
   const [stepIndex, setStepIndex] = useState(0)
@@ -111,9 +136,9 @@ export function useWorkoutTimer(workout: Workout, { soundEnabled = true, onCompl
   }, [soundEnabled, onComplete])
 
   const step = steps[stepIndex] ?? null
-  const nextStep = steps[stepIndex + 1] ?? (workout.loop ? steps[0] ?? null : null)
+  const nextStep = steps[stepIndex + 1] ?? (workout.loop ? steps[loopStartIndex] ?? null : null)
 
-  const setsRemaining = step ? step.totalSets - step.setIndex : 0
+  const setsRemaining = step && !isPrepStep(step) ? step.totalSets - step.setIndex : 0
 
   const cue = useCallback((fn: () => void) => {
     if (soundRef.current) fn()
@@ -138,7 +163,7 @@ export function useWorkoutTimer(workout: Workout, { soundEnabled = true, onCompl
     (idx: number, startAt: number, { announce = true } = {}) => {
       if (idx >= steps.length) {
         if (workout.loop) {
-          idx = 0
+          idx = loopStartIndex
           setRound((r) => r + 1)
         } else {
           finishWorkout()
@@ -153,9 +178,10 @@ export function useWorkoutTimer(workout: Workout, { soundEnabled = true, onCompl
       progress.set(target.mode === 'reps' ? 1 : 0)
       setStepIndex(idx)
       setRemaining(target.duration)
-      if (announce) cue(target.kind === 'work' ? cueWorkStart : cueWorkEnd)
+      // The prep countdown starts silently; its 3-2-1 ticks lead into the first work cue.
+      if (announce && !isPrepStep(target)) cue(target.kind === 'work' ? cueWorkStart : cueWorkEnd)
     },
-    [steps, workout.loop, finishWorkout, progress, cue],
+    [steps, workout.loop, loopStartIndex, finishWorkout, progress, cue],
   )
 
   // Main clock. Runs only while `status === 'running'`.

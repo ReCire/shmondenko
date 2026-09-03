@@ -3,6 +3,7 @@ import { ArrowLeft, Pencil, Play, Repeat } from 'lucide-react'
 import type { Workout } from '../data/types'
 import { PROGRAM_TRACKS } from '../data/stockWorkouts'
 import { useAppStore } from '../store/useAppStore'
+import { unlockAudio } from '../lib/audio'
 import { cn, estimateWorkoutSeconds, formatDuration, totalSets } from '../lib/utils'
 
 const PHASE_LABEL: Record<Workout['phase'], string> = {
@@ -131,7 +132,11 @@ export function WorkoutPreview({ workout }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.3 }}
           whileTap={{ scale: 0.985 }}
-          onClick={() => navigate({ name: 'player', workoutId: workout.id })}
+          onClick={() => {
+            // The player auto-starts, so this tap is the user gesture that unlocks Web Audio.
+            unlockAudio().catch(() => {})
+            navigate({ name: 'player', workoutId: workout.id })
+          }}
           className="flex w-full items-center justify-center gap-3 bg-soviet py-6 text-xl font-black uppercase tracking-[0.25em] text-paper shadow-[0_16px_48px_-12px_rgba(200,16,46,0.8)]"
         >
           <Play size={20} fill="currentColor" /> Begin Session

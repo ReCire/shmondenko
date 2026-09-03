@@ -6,6 +6,8 @@ import { STOCK_PHASES, phaseTheme } from '../data/stockWorkouts'
 import { useAppStore } from '../store/useAppStore'
 import { cn, computeCurrentPhase, daysSinceFirstLog, PHASE_BOUNDARIES } from '../lib/utils'
 
+const PREP_OPTIONS = [3, 5, 10] as const
+
 const NUMERAL: Record<Exclude<WorkoutPhase, 'custom'>, string> = {
   accumulation: 'I',
   intensification: 'II',
@@ -21,6 +23,8 @@ export function Settings() {
   const soundEnabled = useAppStore((s) => s.soundEnabled)
   const toggleSound = useAppStore((s) => s.toggleSound)
   const resetData = useAppStore((s) => s.resetData)
+  const prepTime = useAppStore((s) => s.prepTime)
+  const setPrepTime = useAppStore((s) => s.setPrepTime)
 
   const autoPhase = computeCurrentPhase(logs)
   const effectivePhase = computeCurrentPhase(logs, override)
@@ -87,6 +91,43 @@ export function Settings() {
           <p className="mt-1 font-mono text-[10px] tracking-[0.15em] text-paper/60">
             EFFECTIVE · BLOCK {NUMERAL[effectivePhase]} {effectivePhase.toUpperCase()}
           </p>
+        </Section>
+
+        {/* Prep countdown */}
+        <Section label="PREPARATION TIME" hint={`${prepTime}S`} description="Countdown before the first exercise begins.">
+          <LayoutGroup id="prep-time">
+            <div role="radiogroup" aria-label="Preparation time" className="grid grid-cols-3 border border-paper/15">
+              {PREP_OPTIONS.map((seconds, i) => {
+                const active = seconds === prepTime
+                return (
+                  <button
+                    key={seconds}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setPrepTime(seconds)}
+                    className={cn(
+                      'relative flex h-16 flex-col items-center justify-center transition-colors',
+                      i > 0 && 'border-l border-paper/15',
+                      active ? 'text-ink' : 'text-paper/60 active:bg-paper/5',
+                    )}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="prep-time-pill"
+                        transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                        className="absolute inset-0 bg-paper"
+                      />
+                    )}
+                    <span className="relative z-10 text-2xl font-black tabular tracking-tighter">{seconds}</span>
+                    <span className={cn('relative z-10 font-mono text-[9px] tracking-[0.3em]', active ? 'text-ink/60' : 'text-paper/40')}>
+                      SEC
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </LayoutGroup>
         </Section>
 
         {/* Audio */}

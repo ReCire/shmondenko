@@ -19,6 +19,8 @@ interface AppState {
   customWorkouts: Workout[]
   logs: CompletionLog[]
   soundEnabled: boolean
+  /** Seconds of "Get Ready" countdown before the first exercise. */
+  prepTime: number
 
   navigate: (screen: Screen) => void
   setProgram: (program: ProgramTrack) => void
@@ -27,6 +29,7 @@ interface AppState {
   deleteWorkout: (id: string) => void
   logCompletion: (w: Workout, durationSeconds: number) => void
   toggleSound: () => void
+  setPrepTime: (seconds: number) => void
   /** Danger zone: wipes custom workouts and the completion history. */
   resetData: () => void
   getWorkout: (id: string) => Workout | undefined
@@ -41,6 +44,7 @@ export const useAppStore = create<AppState>()(
       customWorkouts: [],
       logs: [],
       soundEnabled: true,
+      prepTime: 3,
 
       navigate: (screen) => set({ screen }),
 
@@ -84,6 +88,8 @@ export const useAppStore = create<AppState>()(
 
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
 
+      setPrepTime: (prepTime) => set({ prepTime: Math.max(0, Math.round(prepTime)) }),
+
       resetData: () => set({ customWorkouts: [], logs: [], manualPhaseOverride: null }),
 
       getWorkout: (id) =>
@@ -99,6 +105,7 @@ export const useAppStore = create<AppState>()(
         customWorkouts: s.customWorkouts,
         logs: s.logs,
         soundEnabled: s.soundEnabled,
+        prepTime: s.prepTime,
       }),
     },
   ),
