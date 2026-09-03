@@ -85,10 +85,13 @@ export function WorkoutPlayer({ workout }: Props) {
   }, [timer])
 
   const exit = () => {
-    if (timer.status !== 'running' && timer.status !== 'paused') {
+    const isPrep = isPrepStep(timer.step)
+    // Free exit if the timer hasn't started, is finished, or is still in the "Get Ready" countdown.
+    if ((timer.status !== 'running' && timer.status !== 'paused') || isPrep) {
       navigate({ name: 'dashboard' })
       return
     }
+    
     // The dialog is async: hold the clock while it's open, release it on cancel.
     const wasRunning = timer.status === 'running'
     if (wasRunning) timer.pause()
@@ -179,7 +182,7 @@ function Scene({ timer, workout, variant, onExit }: SceneProps) {
       </div>
 
       {(timer.status === 'running' || timer.status === 'paused') && timer.step && (
-        <ActiveScene timer={timer} step={timer.step} muted={muted} btn={btn} variant={variant} />
+        <ActiveScene timer={timer} step={timer.step} muted={muted} btn={btn} variant={variant} onExit={onExit} />
       )}
       {timer.status === 'finished' && <FinishedScene timer={timer} workout={workout} muted={muted} variant={variant} />}
     </div>
@@ -194,12 +197,14 @@ function ActiveScene({
   muted,
   btn,
   variant,
+  onExit,
 }: {
   timer: WorkoutTimer
   step: TimerStep
   muted: string
   btn: string
   variant: 'dark' | 'light'
+  onExit: () => void
 }) {
   const isPrep = isPrepStep(step)
   const isRest = step.kind === 'rest'
@@ -289,7 +294,7 @@ function ActiveScene({
         <ControlButton onClick={timer.skip} label="Skip" className={btn}>
           <ChevronsRight size={22} />
         </ControlButton>
-        <ControlButton onClick={timer.finish} label="Finish workout" className={cn(btn, 'absolute right-6')}>
+        <ControlButton onClick={onExit} label="Abandon workout" className={cn(btn, 'absolute right-6')}>
           <Square size={16} fill="currentColor" />
         </ControlButton>
       </div>
