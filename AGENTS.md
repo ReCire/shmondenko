@@ -16,10 +16,10 @@ The product is "Shmondenko Periodisation". Never reintroduce the old project cod
 
 - `src/data/` — types + `STOCK_WORKOUTS`: 27 stock workouts = 3 program tracks (`home` ⊂ `outdoors` ⊂ `gym`, by equipment) × 3 phases (Accumulation / Intensification / Realization) × 3 days. `PROGRAM_TRACKS` / `STOCK_PHASES` drive the Dashboard selector and grouping.
 - `src/store/useAppStore.ts` — Zustand store: screen routing (dashboard / creator / preview / player / settings), `activeProgram` track, `manualPhaseOverride`, custom workouts, completion logs, sound toggle. Persisted under localStorage key `shmondenko-periodisation-v1` (screen is not persisted).
-- `src/hooks/useWorkoutTimer.ts` — flattens a workout into work/rest steps, drives a rAF clock, exposes `progress` as a Framer `MotionValue` (no per-frame React re-renders), handles pause/skip/back/loop/completion + audio cues.
-- `src/lib/audio.ts` — Web Audio beeps + `navigator.vibrate` cues. `unlockAudio()` must run from a user gesture (called in `start()`).
+- `src/hooks/useWorkoutTimer.ts` — flattens a workout into work/rest steps, drives a rAF clock, exposes `progress` as a Framer `MotionValue` (no per-frame React re-renders), handles pause/skip/back/loop/completion + audio cues. `buildSteps(workout, prepTime)` prepends a synthetic "Get Ready" rest step (`blockIndex === PREP_BLOCK_INDEX`, see `isPrepStep`); loops restart after it.
+- `src/lib/audio.ts` — Web Audio beeps + `navigator.vibrate` cues. `unlockAudio()` must run from a user gesture — the player auto-starts on mount, so `WorkoutPreview`'s BEGIN SESSION tap calls it before navigating.
 - `src/lib/utils.ts` — streak math (`computeStreak`), `computeCurrentPhase(logs, override)` (4-week mesocycles from first log; Settings override wins), clock formatting, ids.
-- `src/components/` — `Dashboard` (tabs: stock / custom / fuel), `FuelGuide` (static nutrition directive), `WorkoutCard`, `WorkoutPreview` (session brief; cards route here, then to the player), `WorkoutCreator`, `WorkoutPlayer`, `Settings` (phase override, sound toggle, danger-zone reset).
+- `src/components/` — `Dashboard` (tabs: stock / custom / fuel), `FuelGuide` (static nutrition directive), `WorkoutCard`, `WorkoutPreview` (session brief; cards route here, BEGIN SESSION unlocks audio then routes to the player, which auto-starts — there is no idle screen), `WorkoutCreator`, `WorkoutPlayer`, `Settings` (phase override, prep countdown 3/5/10s, sound toggle, danger-zone reset).
 
 ## Player fill technique
 
