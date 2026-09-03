@@ -39,25 +39,30 @@ export const computeStreak = (logs: CompletionLog[]): number => {
 }
 
 /** Days elapsed from the first log to today, using local calendar days. */
-const daysSinceFirstLog = (logs: CompletionLog[]): number => {
+export const daysSinceFirstLog = (logs: CompletionLog[]): number => {
   if (logs.length === 0) return 0
-  const first = Math.min(...logs.map((l) => l.completedAt))
-  const firstDate = new Date(first)
+  const first = new Date(Math.min(...logs.map((l) => l.completedAt)))
   const now = new Date()
-  const msPerDay = 1000 * 60 * 60 * 24
-  const start = new Date(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate())
+  const start = new Date(first.getFullYear(), first.getMonth(), first.getDate())
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  return Math.max(0, Math.floor((end.getTime() - start.getTime()) / msPerDay))
+  return Math.max(0, Math.floor((end.getTime() - start.getTime()) / 86_400_000))
 }
 
+/** 4-week mesocycles: days 0-28 accumulation, 29-56 intensification, then realization. */
+export const PHASE_BOUNDARIES = { accumulation: 28, intensification: 56 } as const
+
 /**
- * Smart periodisation phase detection.
- * Based on days since the user's first logged workout.
+ * Smart periodisation phase detection, based on days since the user's first
+ * logged workout. A manual override (from Settings) always wins.
  */
-export const computeCurrentPhase = (logs: CompletionLog[]): WorkoutPhase => {
+export const computeCurrentPhase = (
+  logs: CompletionLog[],
+  override: WorkoutPhase | null = null,
+): Exclude<WorkoutPhase, 'custom'> => {
+  if (override && override !== 'custom') return override
   const days = daysSinceFirstLog(logs)
-  if (days <= 28) return 'accumulation'
-  if (days <= 56) return 'intensification'
+  if (days <= PHASE_BOUNDARIES.accumulation) return 'accumulation'
+  if (days <= PHASE_BOUNDARIES.intensification) return 'intensification'
   return 'realization'
 }
 
@@ -78,7 +83,7 @@ export const formatDuration = (totalSeconds: number): string => {
 /** Estimated duration of one pass through the workout, in seconds. */
 export const estimateWorkoutSeconds = (w: Workout): number =>
   w.blocks.reduce((acc, b) => {
-    const work = b.mode === 'time' ? b.workSeconds : b.reps * 5
+    const work = b.mode === 'time' ? b.workSeconds : b.reps * 3
     return acc + b.sets * (work + b.restSeconds) - b.restSeconds
   }, 0)
 

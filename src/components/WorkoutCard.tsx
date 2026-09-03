@@ -10,25 +10,15 @@ const PHASE_ACCENT: Record<Workout['phase'], string> = {
   custom: 'bg-paper',
 }
 
-const PHASE_LABEL: Record<Workout['phase'], string> = {
-  accumulation: 'ACCUMULATION',
-  intensification: 'INTENSIFICATION',
-  realization: 'REALIZATION',
-  custom: 'CUSTOM',
-}
-
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII']
-
 interface Props {
   workout: Workout
   index: number
   onStart: () => void
   onEdit?: () => void
   onDelete?: () => void
-  recommended?: boolean
 }
 
-export function WorkoutCard({ workout, index, onStart, onEdit, onDelete, recommended = false }: Props) {
+export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props) {
   const minutes = formatDuration(estimateWorkoutSeconds(workout))
   return (
     <motion.article
@@ -40,11 +30,6 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete, recomme
       className="group relative overflow-hidden border border-paper/15 bg-ink"
     >
       <div className={cn('absolute inset-y-0 left-0 w-1.5', PHASE_ACCENT[workout.phase])} />
-      {recommended && (
-        <div className="absolute right-0 top-0 bg-soviet px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.25em] text-paper">
-          CURRENT PHASE
-        </div>
-      )}
       <button
         type="button"
         onClick={onStart}
@@ -53,7 +38,7 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete, recomme
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex items-baseline gap-3">
             <span className="font-mono text-xs tracking-[0.25em] text-paper/40">
-              {workout.isStock ? `BLOCK ${ROMAN[index] ?? index + 1}` : PHASE_LABEL[workout.phase]}
+              {workout.isStock ? `DAY ${index + 1}` : 'CUSTOM'}
             </span>
             {workout.loop && (
               <span className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-paper/50">

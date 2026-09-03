@@ -8,24 +8,18 @@ Mobile-first React PWA-style workout timer. Vite + React 19 + TypeScript, Tailwi
 - `npm run build` — `tsc -b && vite build` (typecheck + production bundle)
 - `npm run lint` — oxlint
 
+## Naming
+
+The product is "Shmondenko Periodisation". Never reintroduce the old project codename (the directory name) anywhere in the codebase.
+
 ## Layout
 
-- `src/data/` — types + `STOCK_WORKOUTS` (Shmondenko Accumulation / Intensification / Realization split)
-- `src/store/useAppStore.ts` — Zustand store: screen routing, custom workouts, completion logs, sound toggle. Persisted under localStorage key `shmondenko-fitness-v1` (screen is not persisted).
-- `src/hooks/useWorkoutTimer.ts` — flattens a workout into work/rest steps, drives a rAF clock, exposes `progress` as a Framer `MotionValue` (no per-frame React re-renders), handles pause/skip/back/loop/completion + audio cues. Uses `navigator.wakeLock` while running.
+- `src/data/` — types + `STOCK_WORKOUTS`: 27 stock workouts = 3 program tracks (`home` ⊂ `outdoors` ⊂ `gym`, by equipment) × 3 phases (Accumulation / Intensification / Realization) × 3 days. `PROGRAM_TRACKS` / `STOCK_PHASES` drive the Dashboard selector and grouping.
+- `src/store/useAppStore.ts` — Zustand store: screen routing, `activeProgram` track, custom workouts, completion logs, sound toggle. Persisted under localStorage key `shmondenko-periodisation-v1` (screen is not persisted).
+- `src/hooks/useWorkoutTimer.ts` — flattens a workout into work/rest steps, drives a rAF clock, exposes `progress` as a Framer `MotionValue` (no per-frame React re-renders), handles pause/skip/back/loop/completion + audio cues.
 - `src/lib/audio.ts` — Web Audio beeps + `navigator.vibrate` cues. `unlockAudio()` must run from a user gesture (called in `start()`).
-- `src/lib/utils.ts` — streak math (`computeStreak`), current phase detection (`computeCurrentPhase`), clock formatting, ids.
+- `src/lib/utils.ts` — streak math (`computeStreak`), clock formatting, ids.
 - `src/components/` — `Dashboard`, `WorkoutCard`, `WorkoutCreator`, `WorkoutPlayer`.
-
-## Phase detection
-
-`computeCurrentPhase(logs)` returns the user's current Soviet block based on days since their first logged workout:
-
-- 0–28 days → `accumulation`
-- 29–56 days → `intensification`
-- 57+ days → `realization`
-
-The Dashboard highlights stock workouts matching this phase with a `CURRENT PHASE` badge.
 
 ## Player fill technique
 

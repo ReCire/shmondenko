@@ -1,25 +1,34 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { CompletionLog, Workout } from '../data/types'
+import type { CompletionLog, ProgramTrack, Workout, WorkoutPhase } from '../data/types'
 import { STOCK_WORKOUTS } from '../data/stockWorkouts'
 import { localDateKey, uid } from '../lib/utils'
 
 export type Screen =
   | { name: 'dashboard' }
   | { name: 'creator'; editId?: string }
+  | { name: 'preview'; workoutId: string }
   | { name: 'player'; workoutId: string }
+  | { name: 'settings' }
 
 interface AppState {
   screen: Screen
+  activeProgram: ProgramTrack
+  /** When set, replaces the date-derived periodisation phase. */
+  manualPhaseOverride: WorkoutPhase | null
   customWorkouts: Workout[]
   logs: CompletionLog[]
   soundEnabled: boolean
 
   navigate: (screen: Screen) => void
+  setProgram: (program: ProgramTrack) => void
+  setPhaseOverride: (phase: WorkoutPhase | null) => void
   saveWorkout: (w: Omit<Workout, 'id' | 'isStock' | 'phase'> & { id?: string }) => Workout
   deleteWorkout: (id: string) => void
   logCompletion: (w: Workout, durationSeconds: number) => void
   toggleSound: () => void
+  /** Danger zone: wipes custom workouts and the completion history. */
+  resetData: () => void
   getWorkout: (id: string) => Workout | undefined
 }
 
@@ -27,11 +36,17 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       screen: { name: 'dashboard' },
+      activeProgram: 'home',
+      manualPhaseOverride: null,
       customWorkouts: [],
       logs: [],
       soundEnabled: true,
 
       navigate: (screen) => set({ screen }),
+
+      setProgram: (activeProgram) => set({ activeProgram }),
+
+      setPhaseOverride: (manualPhaseOverride) => set({ manualPhaseOverride }),
 
       saveWorkout: (input) => {
         const existing = input.id ? get().customWorkouts.find((w) => w.id === input.id) : undefined
@@ -69,14 +84,18 @@ export const useAppStore = create<AppState>()(
 
       toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
 
+      resetData: () => set({ customWorkouts: [], logs: [], manualPhaseOverride: null }),
+
       getWorkout: (id) =>
         STOCK_WORKOUTS.find((w) => w.id === id) ?? get().customWorkouts.find((w) => w.id === id),
     }),
     {
-      name: 'shmondenko-fitness-v1',
+      name: 'shmondenko-periodisation-v1',
       storage: createJSONStorage(() => localStorage),
       // The active screen is session state; never persist it.
       partialize: (s) => ({
+        activeProgram: s.activeProgram,
+        manualPhaseOverride: s.manualPhaseOverride,
         customWorkouts: s.customWorkouts,
         logs: s.logs,
         soundEnabled: s.soundEnabled,

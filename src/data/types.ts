@@ -14,12 +14,20 @@ export interface ExerciseBlock {
 
 export type WorkoutPhase = 'accumulation' | 'intensification' | 'realization' | 'custom'
 
+/**
+ * Equipment availability track. Hierarchical:
+ * home (bodyweight only) ⊂ outdoors (+ bars) ⊂ gym (+ weights).
+ */
+export type ProgramTrack = 'home' | 'outdoors' | 'gym'
+
 export interface Workout {
   id: string
   name: string
   subtitle?: string
   focus?: string
   phase: WorkoutPhase
+  /** Stock workouts belong to a track; custom workouts are track-agnostic. */
+  program?: ProgramTrack
   blocks: ExerciseBlock[]
   loop: boolean
   isStock?: boolean
