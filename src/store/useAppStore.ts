@@ -4,6 +4,15 @@ import type { CompletionLog, ProgramTrack, Workout, WorkoutPhase } from '../data
 import { STOCK_WORKOUTS } from '../data/stockWorkouts'
 import { localDateKey, uid } from '../lib/utils'
 
+export type ThemePreference = 'system' | 'light' | 'dark'
+
+export interface ConfirmDialogState {
+  title: string
+  message: string
+  onConfirm: () => void
+  onCancel?: () => void
+}
+
 export type Screen =
   | { name: 'dashboard' }
   | { name: 'creator'; editId?: string }
@@ -21,6 +30,9 @@ interface AppState {
   soundEnabled: boolean
   /** Seconds of "Get Ready" countdown before the first exercise. */
   prepTime: number
+  theme: ThemePreference
+  /** Global confirmation modal. Session-only; never persisted. */
+  confirmDialog: ConfirmDialogState | null
 
   navigate: (screen: Screen) => void
   setProgram: (program: ProgramTrack) => void
@@ -30,6 +42,9 @@ interface AppState {
   logCompletion: (w: Workout, durationSeconds: number) => void
   toggleSound: () => void
   setPrepTime: (seconds: number) => void
+  setTheme: (theme: ThemePreference) => void
+  requestConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void
+  clearConfirm: () => void
   /** Danger zone: wipes custom workouts and the completion history. */
   resetData: () => void
   getWorkout: (id: string) => Workout | undefined
@@ -45,6 +60,8 @@ export const useAppStore = create<AppState>()(
       logs: [],
       soundEnabled: true,
       prepTime: 3,
+      theme: 'system',
+      confirmDialog: null,
 
       navigate: (screen) => set({ screen }),
 
@@ -90,6 +107,13 @@ export const useAppStore = create<AppState>()(
 
       setPrepTime: (prepTime) => set({ prepTime: Math.max(0, Math.round(prepTime)) }),
 
+      setTheme: (theme) => set({ theme }),
+
+      requestConfirm: (title, message, onConfirm, onCancel) =>
+        set({ confirmDialog: { title, message, onConfirm, onCancel } }),
+
+      clearConfirm: () => set({ confirmDialog: null }),
+
       resetData: () => set({ customWorkouts: [], logs: [], manualPhaseOverride: null }),
 
       getWorkout: (id) =>
@@ -106,6 +130,7 @@ export const useAppStore = create<AppState>()(
         logs: s.logs,
         soundEnabled: s.soundEnabled,
         prepTime: s.prepTime,
+        theme: s.theme,
       }),
     },
   ),

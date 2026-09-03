@@ -1,12 +1,18 @@
 import type { ReactNode } from 'react'
 import { LayoutGroup, motion } from 'framer-motion'
-import { AlertTriangle, ArrowLeft, Volume2, VolumeX } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Monitor, Moon, Sun, Volume2, VolumeX } from 'lucide-react'
 import type { WorkoutPhase } from '../data/types'
 import { STOCK_PHASES, phaseTheme } from '../data/stockWorkouts'
-import { useAppStore } from '../store/useAppStore'
+import { useAppStore, type ThemePreference } from '../store/useAppStore'
 import { cn, computeCurrentPhase, daysSinceFirstLog, PHASE_BOUNDARIES } from '../lib/utils'
 
 const PREP_OPTIONS = [3, 5, 10] as const
+
+const THEME_OPTIONS: { key: ThemePreference; label: string; Icon: typeof Sun }[] = [
+  { key: 'system', label: 'System', Icon: Monitor },
+  { key: 'light', label: 'Light', Icon: Sun },
+  { key: 'dark', label: 'Dark', Icon: Moon },
+]
 
 const NUMERAL: Record<Exclude<WorkoutPhase, 'custom'>, string> = {
   accumulation: 'I',
@@ -25,6 +31,9 @@ export function Settings() {
   const resetData = useAppStore((s) => s.resetData)
   const prepTime = useAppStore((s) => s.prepTime)
   const setPrepTime = useAppStore((s) => s.setPrepTime)
+  const theme = useAppStore((s) => s.theme)
+  const setTheme = useAppStore((s) => s.setTheme)
+  const requestConfirm = useAppStore((s) => s.requestConfirm)
 
   const autoPhase = computeCurrentPhase(logs)
   const effectivePhase = computeCurrentPhase(logs, override)
@@ -37,7 +46,7 @@ export function Settings() {
 
   const confirmReset = () => {
     const summary = `${customWorkouts.length} custom workout${customWorkouts.length === 1 ? '' : 's'} and ${logs.length} logged session${logs.length === 1 ? '' : 's'}`
-    if (confirm(`Erase ${summary}? Your streak resets to zero. This cannot be undone.`)) resetData()
+    requestConfirm('Erase all data?', `${summary} will be deleted and your streak resets to zero. This cannot be undone.`, resetData)
   }
 
   return (
@@ -91,6 +100,41 @@ export function Settings() {
           <p className="mt-1 font-mono text-[10px] tracking-[0.15em] text-paper/60">
             EFFECTIVE · BLOCK {NUMERAL[effectivePhase]} {effectivePhase.toUpperCase()}
           </p>
+        </Section>
+
+        {/* Theme */}
+        <Section label="THEME" hint={theme.toUpperCase()} description="Light mode for training in direct sun. System follows your device.">
+          <LayoutGroup id="theme">
+            <div role="radiogroup" aria-label="Theme" className="grid grid-cols-3 border border-paper/15">
+              {THEME_OPTIONS.map(({ key, label, Icon }, i) => {
+                const active = key === theme
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setTheme(key)}
+                    className={cn(
+                      'relative flex h-16 flex-col items-center justify-center gap-1.5 transition-colors',
+                      i > 0 && 'border-l border-paper/15',
+                      active ? 'text-ink' : 'text-paper/60 active:bg-paper/5',
+                    )}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="theme-pill"
+                        transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                        className="absolute inset-0 bg-paper"
+                      />
+                    )}
+                    <Icon size={18} strokeWidth={2.25} className="relative z-10" />
+                    <span className="relative z-10 font-mono text-[10px] tracking-[0.3em]">{label.toUpperCase()}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </LayoutGroup>
         </Section>
 
         {/* Prep countdown */}

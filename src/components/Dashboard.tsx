@@ -19,6 +19,7 @@ export function Dashboard() {
   const phaseOverride = useAppStore((s) => s.manualPhaseOverride)
   const navigate = useAppStore((s) => s.navigate)
   const deleteWorkout = useAppStore((s) => s.deleteWorkout)
+  const requestConfirm = useAppStore((s) => s.requestConfirm)
   const activeProgram = useAppStore((s) => s.activeProgram)
   const setProgram = useAppStore((s) => s.setProgram)
 
@@ -51,9 +52,12 @@ export function Dashboard() {
       onDelete={
         w.isStock
           ? undefined
-          : () => {
-              if (confirm(`Delete "${w.name}"?`)) deleteWorkout(w.id)
-            }
+          : () =>
+              requestConfirm(
+                `Delete ${w.name}?`,
+                'This custom workout will be removed from this device. Your logged sessions are kept.',
+                () => deleteWorkout(w.id),
+              )
       }
     />
   )

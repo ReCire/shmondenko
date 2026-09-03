@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="fill" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0"    stop-color="#b40f28"/>
+      <stop offset="0.55" stop-color="#e11a2b"/>
+      <stop offset="1"    stop-color="#ff5a1f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1200" height="630" fill="#050505"/>
+
+  <!-- Timer fill rising from the bottom (the player's signature) -->
+  <rect x="0" y="441" width="1200" height="189" fill="url(#fill)"/>
+
+  <!-- Frame -->
+  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="#f4f1ea" stroke-opacity="0.25" stroke-width="2"/>
+
+  <!-- Ш mark -->
+  <g transform="translate(88 96) scale(0.5)" fill="#f4f1ea">
+    <rect x="0"   y="0"   width="64" height="272"/>
+    <rect x="128" y="0"   width="64" height="272"/>
+    <rect x="256" y="0"   width="64" height="272"/>
+    <rect x="0"   y="208" width="320" height="64"/>
+  </g>
+  <rect x="88" y="240" width="160" height="12" fill="#c8102e"/>
+
+  <!-- Eyebrow -->
+  <text x="300" y="132" font-family="'SF Mono', Menlo, 'Courier New', monospace" font-size="20" letter-spacing="7" fill="#f4f1ea" fill-opacity="0.55">ШМОНДЕНКО · SOVIET PERIODISATION</text>
+
+  <!-- Title -->
+  <text x="292" y="262" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="132" letter-spacing="-6" fill="#f4f1ea">SHMONDENKO<tspan fill="#c8102e">.</tspan></text>
+
+  <!-- Subtitle -->
+  <text x="300" y="318" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="-0.5" fill="#f4f1ea" fill-opacity="0.75">A brutalist workout timer. Accumulate. Intensify. Realise.</text>
+
+  <!-- Phase strip (sits on the fill boundary) -->
+  <g font-family="'SF Mono', Menlo, 'Courier New', monospace" font-size="18" letter-spacing="5" fill="#f4f1ea">
+    <text x="88"  y="415" fill-opacity="0.6">I · ACCUMULATION</text>
+    <text x="440" y="415" fill-opacity="0.6">II · INTENSIFICATION</text>
+    <text x="840" y="415" fill-opacity="0.6">III · REALIZATION</text>
+  </g>
+  <rect x="88" y="440" width="1024" height="2" fill="#f4f1ea" fill-opacity="0.35"/>
+
+  <!-- Inverted type inside the fill -->
+  <text x="88" y="538" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="900" font-size="72" letter-spacing="-3" fill="#050505">HOME · OUTDOORS · GYM</text>
+  <text x="88" y="572" font-family="'SF Mono', Menlo, 'Courier New', monospace" font-size="16" letter-spacing="5" fill="#050505" fill-opacity="0.7">ZERO EQUIPMENT → BARS → FULL WEIGHTS · DATA STAYS ON YOUR DEVICE</text>
+</svg>

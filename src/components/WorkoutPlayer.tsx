@@ -47,6 +47,7 @@ export function WorkoutPlayer({ workout }: Props) {
   const soundEnabled = useAppStore((s) => s.soundEnabled)
   const logCompletion = useAppStore((s) => s.logCompletion)
   const prepTime = useAppStore((s) => s.prepTime)
+  const requestConfirm = useAppStore((s) => s.requestConfirm)
 
   const timer = useWorkoutTimer(workout, {
     soundEnabled,
@@ -84,20 +85,26 @@ export function WorkoutPlayer({ workout }: Props) {
   }, [timer])
 
   const exit = () => {
-    if (timer.status === 'running' || timer.status === 'paused') {
-      const wasRunning = timer.status === 'running'
-      if (wasRunning) timer.pause()
-      if (!confirm('Abandon this session? It will not count toward your streak.')) {
-        if (wasRunning) timer.resume()
-        return
-      }
+    if (timer.status !== 'running' && timer.status !== 'paused') {
+      navigate({ name: 'dashboard' })
+      return
     }
-    navigate({ name: 'dashboard' })
+    // The dialog is async: hold the clock while it's open, release it on cancel.
+    const wasRunning = timer.status === 'running'
+    if (wasRunning) timer.pause()
+    requestConfirm(
+      'Abandon session?',
+      'Progress will be discarded and this session will not count toward your streak.',
+      () => navigate({ name: 'dashboard' }),
+      () => {
+        if (wasRunning) timer.resume()
+      },
+    )
   }
 
   return (
     <motion.div
-      className="fixed inset-0 overflow-hidden select-none"
+      className="theme-dark fixed inset-0 overflow-hidden select-none"
       animate={{ backgroundColor: theme.base }}
       transition={{ duration: 0.6 }}
     >
