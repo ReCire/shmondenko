@@ -196,6 +196,7 @@ interface BlockEditorProps {
 function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, onRemove }: BlockEditorProps) {
   // Drag is bound to the grip only, so typing / picking never nudges the order.
   const dragControls = useDragControls()
+  const containerRef = useRef<HTMLLIElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
@@ -223,6 +224,7 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
 
   return (
     <Reorder.Item
+      ref={containerRef}
       value={block}
       dragListener={false}
       dragControls={dragControls}
@@ -230,7 +232,10 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0, marginBottom: -12 }}
       transition={{ duration: 0.22 }}
-      className={cn('relative border bg-ink transition-colors', open ? 'border-paper/60' : 'border-paper/15')}
+      className={cn(
+        'relative border bg-ink transition-colors scroll-mt-[120px]',
+        open ? 'border-paper/60' : 'border-paper/15',
+      )}
     >
       <div ref={rowRef} className="flex items-center gap-2 border-b border-paper/10 pl-2 pr-1">
         <span
@@ -251,7 +256,15 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
             onChange({ name: e.target.value })
             setOpen(true)
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true)
+            // iOS lifts the page for the soft keyboard, which can push this row
+            // off the top. Once the keyboard has settled, pull the block back to
+            // the top of the viewport (scroll-mt keeps it clear of the header).
+            window.setTimeout(() => {
+              containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }, 300)
+          }}
           role="combobox"
           aria-expanded={open}
           aria-autocomplete="list"
