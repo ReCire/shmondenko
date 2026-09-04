@@ -34,6 +34,8 @@ interface AppState {
   theme: ThemePreference
   /** Opt-in readability scale: grows the small mono labels, not the display type. */
   largeType: boolean
+  /** First-run guided tour. Persisted so it only runs once. */
+  hasSeenOnboarding: boolean
   /** Global confirmation modal. Session-only; never persisted. */
   confirmDialog: ConfirmDialogState | null
 
@@ -47,6 +49,8 @@ interface AppState {
   setPrepTime: (seconds: number) => void
   setTheme: (theme: ThemePreference) => void
   toggleLargeType: () => void
+  completeOnboarding: () => void
+  restartOnboarding: () => void
   requestConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void
   clearConfirm: () => void
   /** Danger zone: wipes custom workouts and the completion history. */
@@ -66,6 +70,7 @@ export const useAppStore = create<AppState>()(
       prepTime: 3,
       theme: 'system',
       largeType: false,
+      hasSeenOnboarding: false,
       confirmDialog: null,
 
       navigate: (screen) => set({ screen }),
@@ -116,6 +121,12 @@ export const useAppStore = create<AppState>()(
 
       toggleLargeType: () => set((s) => ({ largeType: !s.largeType })),
 
+      completeOnboarding: () => set({ hasSeenOnboarding: true }),
+
+      // Replays the briefing from Settings; the tour only renders on the
+      // dashboard, so send the user there too.
+      restartOnboarding: () => set({ hasSeenOnboarding: false, screen: { name: 'dashboard' } }),
+
       requestConfirm: (title, message, onConfirm, onCancel) =>
         set({ confirmDialog: { title, message, onConfirm, onCancel } }),
 
@@ -139,6 +150,7 @@ export const useAppStore = create<AppState>()(
         prepTime: s.prepTime,
         theme: s.theme,
         largeType: s.largeType,
+        hasSeenOnboarding: s.hasSeenOnboarding,
       }),
     },
   ),

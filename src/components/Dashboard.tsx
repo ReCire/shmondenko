@@ -84,6 +84,7 @@ export function Dashboard() {
           type="button"
           onClick={() => navigate({ name: 'settings' })}
           aria-label="Settings"
+          data-tour="settings"
           className="mt-1 flex w-14 shrink-0 self-stretch items-center justify-center border border-soviet-text text-soviet-text active:bg-soviet-text/15"
         >
           <Settings2 size={22} />
@@ -97,7 +98,7 @@ export function Dashboard() {
           <p className="font-mono font-semibold text-label tracking-[0.2em] text-paper/60">{activeTrack.description.toUpperCase()}</p>
         </div>
         <LayoutGroup id="program-track">
-          <div role="radiogroup" aria-label="Program track" className="grid grid-cols-3 border border-paper/15">
+          <div role="radiogroup" aria-label="Program track" data-tour="tracks" className="grid grid-cols-3 border border-paper/15">
             {PROGRAM_TRACKS.map((t, i) => {
               const Icon = TRACK_ICONS[t.key]
               const active = t.key === activeProgram
@@ -266,6 +267,7 @@ export function Dashboard() {
         whileTap={{ scale: 0.92 }}
         onClick={() => navigate({ name: 'creator' })}
         aria-label="Create custom workout"
+        data-tour="create"
         className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 flex h-16 w-16 items-center justify-center bg-soviet text-[#f4f1ea] shadow-[0_12px_40px_-8px_rgba(200,16,46,0.7)]"
       >
         <Plus size={30} strokeWidth={2.5} />

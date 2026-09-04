@@ -8,6 +8,7 @@ import { WorkoutPlayer } from './components/WorkoutPlayer'
 import { Settings } from './components/Settings'
 import { ExerciseDetail } from './components/ExerciseDetail'
 import { ConfirmDialog } from './components/ConfirmDialog'
+import { Onboarding } from './components/Onboarding'
 
 const screenTransition = {
   initial: { opacity: 0, y: 12 },
@@ -93,6 +94,7 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      <Onboarding />
       <ConfirmDialog />
     </>
   )

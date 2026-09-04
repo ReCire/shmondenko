@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { LayoutGroup, motion } from 'framer-motion'
-import { ALargeSmall, AlertTriangle, ArrowLeft, Monitor, Moon, Sun, Volume2, VolumeX } from 'lucide-react'
+import { ALargeSmall, AlertTriangle, ArrowLeft, BookOpen, Monitor, Moon, Sun, Volume2, VolumeX } from 'lucide-react'
 import type { WorkoutPhase } from '../data/types'
 import { STOCK_PHASES, phaseTheme } from '../data/stockWorkouts'
 import { useAppStore, type ThemePreference } from '../store/useAppStore'
@@ -35,6 +35,7 @@ export function Settings() {
   const setTheme = useAppStore((s) => s.setTheme)
   const largeType = useAppStore((s) => s.largeType)
   const toggleLargeType = useAppStore((s) => s.toggleLargeType)
+  const restartOnboarding = useAppStore((s) => s.restartOnboarding)
   const requestConfirm = useAppStore((s) => s.requestConfirm)
 
   const autoPhase = computeCurrentPhase(logs)
@@ -219,6 +220,24 @@ export function Settings() {
               </span>
             </span>
             <Switch on={soundEnabled} />
+          </button>
+        </Section>
+
+        {/* Briefing */}
+        <Section label="BRIEFING" description="The first-run walkthrough: the periodisation blocks, the tracks, and where everything lives.">
+          <button
+            type="button"
+            onClick={restartOnboarding}
+            className="flex w-full items-center justify-between border border-paper/15 px-4 py-4 active:bg-paper/5"
+          >
+            <span className="flex items-center gap-3">
+              <BookOpen size={18} />
+              <span className="text-left">
+                <span className="block text-base font-bold uppercase tracking-tight">Replay briefing</span>
+                <span className="block font-mono font-semibold text-label tracking-[0.2em] text-paper/70">RETURNS TO DASHBOARD</span>
+              </span>
+            </span>
+            <span className="font-mono font-semibold text-label tracking-[0.2em] text-soviet-text">RUN</span>
           </button>
         </Section>
 

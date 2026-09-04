@@ -29,6 +29,11 @@
   --text-caption: 0.6875rem;
 }
 
+/* Scrim the onboarding spotlight punches its hole out of. */
+:root {
+  --tour-scrim: rgba(5, 5, 5, 0.86);
+}
+
 /*
  * Theme switching. Utilities like `bg-ink` / `text-paper` resolve through these
  * variables, so flipping them inverts the whole UI. `.theme-light` is toggled on
@@ -40,6 +45,7 @@
   --color-paper: #050505;
   /* On a paper ground the deep red is already 5.22:1; the bright one is 3.09:1. */
   --color-soviet-text: #c8102e;
+  --tour-scrim: rgba(244, 241, 234, 0.9);
   color-scheme: light;
 }
 
@@ -47,6 +53,7 @@
   --color-ink: #050505;
   --color-paper: #f4f1ea;
   --color-soviet-text: #ff3b5c;
+  --tour-scrim: rgba(5, 5, 5, 0.86);
   color-scheme: dark;
 }
 

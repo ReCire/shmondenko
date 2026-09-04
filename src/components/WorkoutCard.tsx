@@ -27,6 +27,8 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1], delay: index * 0.04 }}
+      // The onboarding spotlight anchors to the first card in the list.
+      data-tour={index === 0 ? 'workout-card' : undefined}
       className="group relative overflow-hidden border border-paper/15 bg-ink"
     >
       <div className={cn('absolute inset-y-0 left-0 w-1.5', PHASE_ACCENT[workout.phase])} />
