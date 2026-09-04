@@ -65,8 +65,10 @@ export function Dashboard() {
   return (
     <div className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col safe-pt safe-pb">
       {/* Header */}
-      <header className="flex items-start justify-between px-6 pb-6">
-        <div>
+      <header className="flex items-start gap-3 px-6 pb-6">
+        {/* min-w-0 keeps the caption from out-growing the wordmark and eating
+            the button's gutter once Large Type is on. */}
+        <div className="min-w-0 flex-1">
           <p className="font-mono font-semibold text-caption tracking-[0.25em] text-paper/70">ШМОНДЕНКО · PERIODISATION</p>
           <h1 className="mt-1 text-[clamp(2rem,9.5vw,3rem)] font-black uppercase leading-[0.9] tracking-tighter text-balance">
             Shmondenko
@@ -82,9 +84,9 @@ export function Dashboard() {
           type="button"
           onClick={() => navigate({ name: 'settings' })}
           aria-label="Settings"
-          className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center border border-soviet-text text-soviet-text active:bg-soviet-text/15"
+          className="mt-1 flex w-14 shrink-0 self-stretch items-center justify-center border border-soviet-text text-soviet-text active:bg-soviet-text/15"
         >
-          <Settings2 size={20} />
+          <Settings2 size={22} />
         </button>
       </header>
 
