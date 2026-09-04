@@ -91,8 +91,8 @@ export function WorkoutCreator({ editId }: Props) {
           <ArrowLeft size={22} />
         </button>
         <div>
-          <p className="font-mono text-[11px] tracking-[0.35em] text-paper/45">{existing ? 'EDIT' : 'NEW'} CUSTOM</p>
-          <h1 className="text-2xl font-black uppercase leading-none tracking-tight">Workout Builder</h1>
+          <p className="font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/70">{existing ? 'EDIT' : 'NEW'} CUSTOM</p>
+          <h1 className="text-2xl font-black uppercase leading-none tracking-tight text-balance">Workout Builder</h1>
         </div>
       </header>
 
@@ -105,7 +105,7 @@ export function WorkoutCreator({ editId }: Props) {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. HYPERTROPHY B"
               autoFocus={!existing}
-              className="w-full border-b-2 border-paper/25 bg-transparent pb-2 text-3xl font-black uppercase tracking-tight placeholder:text-paper/20 focus:border-soviet focus:outline-none"
+              className="w-full border-b-2 border-paper/25 bg-transparent pb-2 text-3xl font-black uppercase tracking-tight placeholder:text-paper/55 focus:border-soviet focus:outline-none"
             />
           </Field>
 
@@ -117,7 +117,7 @@ export function WorkoutCreator({ editId }: Props) {
             className="flex items-center justify-between border border-paper/15 px-4 py-3.5 active:bg-paper/5"
           >
             <div className="text-left">
-              <p className="font-mono text-[11px] tracking-[0.3em] text-paper/45">LOOP REPEAT</p>
+              <p className="font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">LOOP REPEAT</p>
               <p className="mt-0.5 text-sm text-paper/80">
                 {loop ? 'Runs until you stop it' : 'Runs through once, then ends'}
               </p>
@@ -135,8 +135,8 @@ export function WorkoutCreator({ editId }: Props) {
         {/* Blocks */}
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-mono text-[11px] tracking-[0.3em] text-paper/45">EXERCISE BLOCKS</h2>
-            <span className="font-mono text-[11px] tracking-widest text-paper/40">
+            <h2 className="font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">EXERCISE BLOCKS</h2>
+            <span className="font-mono font-semibold text-[11px] tracking-widest text-paper/60">
               {blocks.length} · ~{formatDuration(preview).toUpperCase()}
             </span>
           </div>
@@ -291,11 +291,11 @@ function BlockEditor({
             dragControls.start(e)
           }}
           aria-label="Drag to reorder"
-          className="cursor-grab touch-none py-3 text-paper/30 active:cursor-grabbing"
+          className="cursor-grab touch-none py-3 text-paper/50 active:cursor-grabbing"
         >
           <GripVertical size={16} />
         </span>
-        <span className="font-mono text-[11px] tracking-widest text-paper/40">{String(index + 1).padStart(2, '0')}</span>
+        <span className="font-mono font-semibold text-[11px] tracking-widest text-paper/60">{String(index + 1).padStart(2, '0')}</span>
         <input
           ref={inputRef}
           value={block.name}
@@ -311,7 +311,7 @@ function BlockEditor({
           autoComplete="off"
           placeholder="Search library or type"
           className={cn(
-            'min-w-0 flex-1 bg-transparent py-3 text-lg font-bold uppercase tracking-tight placeholder:font-normal placeholder:normal-case placeholder:text-paper/25 focus:outline-none',
+            'min-w-0 flex-1 bg-transparent py-3 text-lg font-bold uppercase tracking-tight placeholder:font-normal placeholder:normal-case placeholder:text-paper/70 focus:outline-none',
             showError && 'placeholder:text-soviet',
           )}
         />
@@ -328,7 +328,7 @@ function BlockEditor({
           aria-label="Exercise library"
           className={cn(
             'flex h-10 w-9 shrink-0 items-center justify-center transition-colors',
-            open ? 'bg-paper text-ink' : 'text-paper/40 active:text-paper',
+            open ? 'bg-paper text-ink' : 'text-paper/60 active:text-paper',
           )}
         >
           <Library size={16} />
@@ -338,7 +338,7 @@ function BlockEditor({
             type="button"
             onClick={onRemove}
             aria-label="Remove block"
-            className="flex h-10 w-10 items-center justify-center text-paper/40 active:text-soviet"
+            className="flex h-10 w-10 items-center justify-center text-paper/60 active:text-soviet"
           >
             <Trash2 size={16} />
           </button>
@@ -559,10 +559,10 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
           className="overflow-hidden border-b-2 border-paper bg-ink"
         >
           <div className="flex items-center justify-between border-b border-paper/15 bg-paper/5 px-3 py-1.5">
-            <span className="font-mono text-[10px] tracking-[0.3em] text-paper/60">
+            <span className="font-mono font-semibold text-[10px] tracking-[0.22em] text-paper/60">
               {query.trim() ? `MATCHES · ${matches.length}` : `LIBRARY · ${matches.length}`}
             </span>
-            <span className="font-mono text-[10px] tracking-[0.3em] text-soviet">TAP TO FILL</span>
+            <span className="font-mono font-semibold text-[10px] tracking-[0.22em] text-soviet">TAP TO FILL</span>
           </div>
 
           <div
@@ -573,7 +573,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
             className="overflow-y-auto overscroll-contain"
           >
             {shown.length === 0 ? (
-              <p className="px-3 py-5 font-mono text-[11px] leading-relaxed tracking-[0.2em] text-paper/45">
+              <p className="px-3 py-5 font-mono font-semibold text-[11px] leading-relaxed tracking-[0.2em] text-paper/70">
                 NO MATCH IN LIBRARY.
                 <br />
                 KEEP TYPING — CUSTOM NAMES ARE FINE.
@@ -602,8 +602,8 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
                     </span>
                     <span
                       className={cn(
-                        'mt-0.5 block truncate font-mono text-[10px] tracking-[0.18em]',
-                        i === active ? 'text-ink/60' : 'text-paper/40',
+                        'mt-0.5 block truncate font-mono font-semibold text-[10px] tracking-[0.18em]',
+                        i === active ? 'text-ink/75' : 'text-paper/60',
                       )}
                     >
                       {ex.mode === 'time' ? `${ex.workSeconds}S` : `${ex.reps} REPS`} · ×{ex.sets} · REST {ex.restSeconds}S
@@ -612,8 +612,8 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
                   </span>
                   <span
                     className={cn(
-                      'shrink-0 font-mono text-[10px] tracking-[0.2em]',
-                      i === active ? 'text-ink/50' : 'text-paper/30',
+                      'shrink-0 font-mono font-semibold text-[10px] tracking-[0.2em]',
+                      i === active ? 'text-ink/70' : 'text-paper/50',
                     )}
                   >
                     {ex.tracks.map((t) => t[0].toUpperCase()).join('')}
@@ -622,7 +622,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
               ))
             )}
             {matches.length > shown.length && (
-              <p className="px-3 py-2 font-mono text-[10px] tracking-[0.25em] text-paper/30">
+              <p className="px-3 py-2 font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/50">
                 +{matches.length - shown.length} MORE · REFINE SEARCH
               </p>
             )}
@@ -650,13 +650,13 @@ function Highlight({ text, query }: { text: string; query: string }) {
 /* ---------- Primitives ---------- */
 
 function Label({ children }: { children: ReactNode }) {
-  return <span className="mb-1.5 block h-5 font-mono text-[10px] leading-5 tracking-[0.25em] text-paper/45">{children}</span>
+  return <span className="mb-1.5 block h-5 font-mono font-semibold text-[10px] leading-5 tracking-[0.2em] text-paper/70">{children}</span>
 }
 
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="flex justify-between font-mono text-[11px] tracking-[0.3em] text-paper/45">
+      <span className="flex justify-between font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">
         {label}
         {error && <span className="text-soviet">{error.toUpperCase()}</span>}
       </span>
@@ -682,7 +682,7 @@ function Segmented<T extends string>({
           type="button"
           onClick={() => onChange(v)}
           className={cn(
-            'flex-1 font-mono text-[9px] tracking-widest transition-colors',
+            'flex-1 font-mono font-semibold text-[9px] tracking-widest transition-colors',
             v === value ? 'bg-paper text-ink' : 'text-paper/50',
           )}
         >
@@ -733,7 +733,7 @@ function NumberInput({
           className="w-full min-w-0 bg-transparent text-center text-2xl font-black tabular focus:outline-none"
         />
         {suffix && (
-          <span className="pointer-events-none absolute right-0 top-0 font-mono text-[10px] text-paper/40">{suffix}</span>
+          <span className="pointer-events-none absolute right-0 top-0 font-mono font-semibold text-[10px] text-paper/60">{suffix}</span>
         )}
       </div>
       <button

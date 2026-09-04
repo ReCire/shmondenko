@@ -190,7 +190,7 @@ interface SceneProps {
 
 function Scene({ timer, workout, variant, onExit, onViewTechnique }: SceneProps) {
   const fg = variant === 'dark' ? 'text-paper' : 'text-ink'
-  const muted = variant === 'dark' ? 'text-paper/50' : 'text-ink/55'
+  const muted = variant === 'dark' ? 'text-paper/70' : 'text-ink/70'
   const btn = variant === 'dark' ? 'border-paper/25 active:bg-paper/10' : 'border-ink/30 active:bg-ink/10'
 
   return (
@@ -206,9 +206,9 @@ function Scene({ timer, workout, variant, onExit, onViewTechnique }: SceneProps)
           <X size={22} />
         </button>
         <div className="text-center">
-          <p className={cn('font-mono text-[10px] uppercase tracking-[0.35em]', muted)}>{workout.name}</p>
+          <p className={cn('font-mono font-semibold text-[10px] uppercase tracking-[0.25em]', muted)}>{workout.name}</p>
           {workout.loop && timer.status !== 'idle' && (
-            <p className={cn('font-mono text-[10px] tracking-[0.25em]', muted)}>ROUND {timer.round}</p>
+            <p className={cn('font-mono font-semibold text-[10px] tracking-[0.2em]', muted)}>ROUND {timer.round}</p>
           )}
         </div>
         <div className="w-11" />
@@ -294,7 +294,7 @@ function ActiveScene({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mt-3 max-w-[92vw] text-[clamp(2.25rem,9vw,4rem)] font-black uppercase leading-[0.95] tracking-tighter"
+          className="mt-3 max-w-[92vw] text-[clamp(2.25rem,9vw,4rem)] font-black uppercase leading-[0.95] tracking-tighter text-balance"
         >
           {headline}
         </motion.h1>
@@ -448,16 +448,16 @@ function RecoveryCard({
           : 'border-ink/25 bg-paper/80 backdrop-blur-sm',
       )}
     >
-      <p className={cn('font-mono text-[10px] tracking-[0.35em]', muted)}>NEXT MOVEMENT</p>
+      <p className={cn('font-mono font-semibold text-[10px] tracking-[0.25em]', muted)}>NEXT MOVEMENT</p>
       <h3 className={cn('mt-1 text-2xl font-black uppercase leading-none tracking-tight', fg)}>{exerciseName}</h3>
       {info ? (
         <>
-          <p className={cn('mt-1 font-mono text-[10px] tracking-[0.25em]', muted)}>
+          <p className={cn('mt-1 font-mono font-semibold text-[10px] tracking-[0.2em]', muted)}>
             {info.muscles.slice(0, 3).join(' · ')} {info.category && `· ${info.category.toUpperCase()}`}
           </p>
           {section && (
             <div className={cn('mt-4 border-t pt-3', variant === 'dark' ? 'border-paper/15' : 'border-ink/15')}>
-              <p className={cn('font-mono text-[10px] tracking-[0.35em]', muted)}>TECHNICAL BRIEFING</p>
+              <p className={cn('font-mono font-semibold text-[10px] tracking-[0.25em]', muted)}>TECHNICAL BRIEFING</p>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={section.title}
@@ -466,7 +466,7 @@ function RecoveryCard({
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <h4 className={cn('mt-1 font-mono text-[11px] tracking-[0.35em]', fg)}>{section.title}</h4>
+                  <h4 className={cn('mt-1 font-mono font-semibold text-[11px] tracking-[0.25em]', fg)}>{section.title}</h4>
                   <div className="mt-2 flex justify-center gap-1.5">
                     {sections.map((_, i) => (
                       <span
@@ -482,7 +482,7 @@ function RecoveryCard({
                   <ol className="mt-2 space-y-1.5">
                     {section.items.map((item, i) => (
                       <li key={i} className="flex items-start gap-3 text-left">
-                        <span className={cn('w-5 shrink-0 font-mono text-[10px] tabular', muted)}>{String(i + 1).padStart(2, '0')}</span>
+                        <span className={cn('w-5 shrink-0 font-mono font-semibold text-[10px] tabular', muted)}>{String(i + 1).padStart(2, '0')}</span>
                         <span className={cn('text-sm font-medium leading-snug', fg)}>{item}</span>
                       </li>
                     ))}
@@ -500,7 +500,7 @@ function RecoveryCard({
         onClick={onViewTechnique}
         aria-label={`View full technique for ${exerciseName}`}
         className={cn(
-          'mt-4 w-full py-3 font-mono text-[10px] uppercase tracking-[0.3em] transition-colors border',
+          'mt-4 w-full py-3 font-mono font-semibold text-[10px] uppercase tracking-[0.22em] transition-colors border',
           variant === 'dark'
             ? 'border-paper/25 text-paper hover:bg-paper/10'
             : 'border-ink/30 text-ink hover:bg-ink/10',

@@ -37,11 +37,11 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
       >
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex items-baseline gap-3">
-            <span className="font-mono text-xs tracking-[0.25em] text-paper/40">
+            <span className="font-mono text-xs tracking-[0.25em] text-paper/60">
               {workout.isStock ? `DAY ${index + 1}` : 'CUSTOM'}
             </span>
             {workout.loop && (
-              <span className="inline-flex items-center gap-1 font-mono text-[10px] tracking-widest text-paper/50">
+              <span className="inline-flex items-center gap-1 font-mono font-semibold text-[10px] tracking-widest text-paper/50">
                 <Repeat size={10} /> LOOP
               </span>
             )}
@@ -50,7 +50,7 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
           {(workout.focus || workout.subtitle) && (
             <p className="truncate text-sm text-paper/55">{workout.focus ?? workout.subtitle}</p>
           )}
-          <p className="mt-1 truncate font-mono text-xs text-paper/45">
+          <p className="mt-1 truncate font-mono text-xs text-paper/70">
             {workout.blocks.map((b) => b.name).join(' · ')}
           </p>
           <div className="mt-1 flex gap-4 font-mono text-xs tabular text-paper/60">
@@ -59,7 +59,7 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
             <span>~{minutes.toUpperCase()}</span>
           </div>
         </div>
-        <div className="flex items-center text-paper/40 transition group-hover:text-paper">
+        <div className="flex items-center text-paper/60 transition group-hover:text-paper">
           <ChevronRight size={22} strokeWidth={1.75} />
         </div>
       </button>
