@@ -219,13 +219,15 @@ export function Dashboard() {
                 return (
                   <section key={phase} className="flex flex-col gap-3">
                     <div className="flex items-baseline gap-3 border-b border-paper/15 pb-2">
-                      <h2 className={cn('font-mono font-semibold text-caption tracking-[0.2em]', phase === currentPhase ? 'text-paper' : 'text-paper/70')}>
+                      {/* Title and badge never wrap; the theme label truncates
+                          instead — it is the only expendable part of the row. */}
+                      <h2 className={cn('shrink-0 whitespace-nowrap font-mono font-semibold text-caption tracking-[0.14em]', phase === currentPhase ? 'text-paper' : 'text-paper/70')}>
                         {phaseLabel(phase).toUpperCase()}
                       </h2>
                       {phase === currentPhase && (
-                        <span className="bg-soviet px-1.5 py-0.5 font-mono text-micro font-bold tracking-[0.2em] text-[#f4f1ea]">CURRENT</span>
+                        <span className="shrink-0 whitespace-nowrap bg-soviet px-1.5 py-0.5 font-mono text-micro font-bold tracking-[0.15em] text-[#f4f1ea]">CURRENT</span>
                       )}
-                      <span className="ml-auto shrink-0 font-mono font-semibold text-label tracking-[0.15em] text-paper/60">{phaseTheme(phase).toUpperCase()}</span>
+                      <span className="ml-auto min-w-0 truncate font-mono font-semibold text-label tracking-[0.1em] text-paper/60">{phaseTheme(phase).toUpperCase()}</span>
                     </div>
                     {days.map(renderCard)}
                   </section>

@@ -32,12 +32,14 @@ const STEPS: Step[] = [
     body: (
       <>
         <p>You do not train the same way all year. The programme runs in three four-week blocks, each with a different job.</p>
-        <dl className="mt-4 flex flex-col gap-2.5">
+        <dl className="mt-4 flex flex-col gap-3.5">
           <Block numeral="I" name="Accumulation">Volume and form. Long sets, short rest.</Block>
           <Block numeral="II" name="Intensification">Strength and CNS. Heavy sets, long rest.</Block>
           <Block numeral="III" name="Realization">Peak power. Few explosive reps, full recovery.</Block>
         </dl>
-        <p className="mt-4">The dashboard counts from your first logged session and tells you which block you are in.</p>
+        <p className="mt-4">
+          The dashboard counts from your first logged session and tells you which block you are in. Progress is saved on this device — no account, nothing uploaded.
+        </p>
       </>
     ),
   },
@@ -50,7 +52,7 @@ const STEPS: Step[] = [
     body: (
       <>
         <p>Every stock workout exists in three versions. Pick what you have access to today — the exercises change, the periodisation does not.</p>
-        <dl className="mt-4 flex flex-col gap-2.5">
+        <dl className="mt-4 flex flex-col gap-3.5">
           <Block numeral="H" name="Home">Bodyweight only. No equipment at all.</Block>
           <Block numeral="O" name="Outdoors">Adds pull-up and dip bars.</Block>
           <Block numeral="G" name="Gym">Adds barbells, dumbbells, cables.</Block>
@@ -66,7 +68,7 @@ const STEPS: Step[] = [
     target: q('[data-tour="workout-card"]'),
     body: (
       <>
-        <p>Tap any card for the session brief — the exercises, the sets, the duration.</p>
+        <p>Tap any card for the session brief — the exercises, the sets, the duration. Tap an exercise in that list for a full technique breakdown: setup, execution, common mistakes.</p>
         <p className="mt-3">
           <span className="text-paper">BEGIN SESSION</span> starts the timer. From there it runs itself — work, rest, sets — with audio cues on the last three seconds.
         </p>
@@ -84,6 +86,9 @@ const STEPS: Step[] = [
         <p>Time or reps, rest, sets — as many blocks as you want, looped or run once.</p>
         <p className="mt-3">
           Start typing an exercise name and the library from the stock programme opens underneath. Pick one and it fills in sensible work, rest and set counts for you.
+        </p>
+        <p className="mt-3">
+          It does not have to be training at all. Any interval works — meditation, breathwork, focus blocks, cooking.
         </p>
       </>
     ),
@@ -107,12 +112,12 @@ const STEPS: Step[] = [
 
 function Block({ numeral, name, children }: { numeral: string; name: string; children: ReactNode }) {
   return (
-    <div className="flex gap-3">
-      <dt className="w-6 shrink-0 font-mono font-semibold text-caption leading-5 tracking-[0.15em] text-soviet-text">{numeral}</dt>
-      <dd className="min-w-0 flex-1 leading-5">
-        <span className="font-bold uppercase tracking-tight text-paper">{name}</span>{' '}
-        <span className="text-paper/70">{children}</span>
-      </dd>
+    <div className="border-l-2 border-soviet-text/50 pl-3">
+      <dt className="flex items-baseline gap-2">
+        <span className="font-mono font-semibold text-caption tracking-[0.2em] text-soviet-text">{numeral}</span>
+        <span className="text-base font-bold uppercase leading-tight tracking-tight text-paper">{name}</span>
+      </dt>
+      <dd className="mt-1 leading-snug text-paper/70">{children}</dd>
     </div>
   )
 }
