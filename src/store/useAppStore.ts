@@ -32,6 +32,8 @@ interface AppState {
   /** Seconds of "Get Ready" countdown before the first exercise. */
   prepTime: number
   theme: ThemePreference
+  /** Opt-in readability scale: grows the small mono labels, not the display type. */
+  largeType: boolean
   /** Global confirmation modal. Session-only; never persisted. */
   confirmDialog: ConfirmDialogState | null
 
@@ -44,6 +46,7 @@ interface AppState {
   toggleSound: () => void
   setPrepTime: (seconds: number) => void
   setTheme: (theme: ThemePreference) => void
+  toggleLargeType: () => void
   requestConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void
   clearConfirm: () => void
   /** Danger zone: wipes custom workouts and the completion history. */
@@ -62,6 +65,7 @@ export const useAppStore = create<AppState>()(
       soundEnabled: true,
       prepTime: 3,
       theme: 'system',
+      largeType: false,
       confirmDialog: null,
 
       navigate: (screen) => set({ screen }),
@@ -110,6 +114,8 @@ export const useAppStore = create<AppState>()(
 
       setTheme: (theme) => set({ theme }),
 
+      toggleLargeType: () => set((s) => ({ largeType: !s.largeType })),
+
       requestConfirm: (title, message, onConfirm, onCancel) =>
         set({ confirmDialog: { title, message, onConfirm, onCancel } }),
 
@@ -132,6 +138,7 @@ export const useAppStore = create<AppState>()(
         soundEnabled: s.soundEnabled,
         prepTime: s.prepTime,
         theme: s.theme,
+        largeType: s.largeType,
       }),
     },
   ),

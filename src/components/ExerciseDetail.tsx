@@ -23,7 +23,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
         >
           <ArrowLeft size={22} />
         </button>
-        <p className="font-mono font-semibold text-[10px] tracking-[0.25em] text-paper/70">TECHNICAL MANUAL</p>
+        <p className="font-mono font-semibold text-label tracking-[0.25em] text-paper/70">TECHNICAL MANUAL</p>
         <div className="w-11" />
       </header>
 
@@ -35,13 +35,13 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="mb-8 border-b border-paper/15 pb-6">
-              <p className="font-mono font-semibold text-[10px] tracking-[0.25em] text-paper/70">
+              <p className="font-mono font-semibold text-label tracking-[0.25em] text-paper/70">
                 EXERCISE {index >= 0 ? ` / ${String(index + 1).padStart(3, '0')}` : ''}
               </p>
               <h1 className="mt-2 text-[clamp(2.25rem,9vw,3.5rem)] font-black uppercase leading-[0.9] tracking-tighter text-balance">
                 {info.name}
               </h1>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono font-semibold text-[11px] tracking-[0.2em] text-paper/60">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono font-semibold text-caption tracking-[0.2em] text-paper/60">
                 <span>{info.muscles.join(' · ')}</span>
                 {info.category && <span className="text-paper/60">{info.category.toUpperCase()}</span>}
               </div>
@@ -58,7 +58,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
 
             {info.commonMistakes.length > 0 && (
               <section className="mt-8 border-t border-paper/15 pt-6">
-                <h2 className="mb-4 font-mono font-semibold text-[11px] tracking-[0.25em] text-soviet">COMMON ERRORS</h2>
+                <h2 className="mb-4 font-mono font-semibold text-caption tracking-[0.25em] text-soviet">COMMON ERRORS</h2>
                 <ul className="space-y-4">
                   {info.commonMistakes.map((m, i) => (
                     <li key={i} className="flex items-start gap-3">
@@ -72,7 +72,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
 
             {info.safety && info.safety.length > 0 && (
               <section className="mt-8 border-t border-paper/15 pt-6">
-                <h2 className="mb-4 font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/60">SAFETY</h2>
+                <h2 className="mb-4 font-mono font-semibold text-caption tracking-[0.25em] text-paper/60">SAFETY</h2>
                 <ul className="space-y-3">
                   {info.safety.map((s, i) => (
                     <li key={i} className="flex items-start gap-3 text-paper/80">
@@ -86,11 +86,11 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
 
             {(info.easier?.length || info.harder?.length) && (
               <section className="mt-8 border-t border-paper/15 pt-6">
-                <h2 className="mb-4 font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/60">PROGRESSION</h2>
+                <h2 className="mb-4 font-mono font-semibold text-caption tracking-[0.25em] text-paper/60">PROGRESSION</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {info.easier && info.easier.length > 0 && (
                     <div className="border border-paper/15 p-4">
-                      <p className="mb-2 font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/70">EASIER</p>
+                      <p className="mb-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/70">EASIER</p>
                       <ul className="list-disc space-y-1 pl-4 text-sm text-paper/80">
                         {info.easier.map((e, i) => (
                           <li key={i}>{e}</li>
@@ -100,7 +100,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
                   )}
                   {info.harder && info.harder.length > 0 && (
                     <div className="border border-paper/15 p-4">
-                      <p className="mb-2 font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/70">HARDER</p>
+                      <p className="mb-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/70">HARDER</p>
                       <ul className="list-disc space-y-1 pl-4 text-sm text-paper/80">
                         {info.harder.map((e, i) => (
                           <li key={i}>{e}</li>
@@ -114,7 +114,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
 
             {info.breathing && (
               <section className="mt-8 border-t border-paper/15 pt-6">
-                <h2 className="mb-2 font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/60">BREATHING</h2>
+                <h2 className="mb-2 font-mono font-semibold text-caption tracking-[0.25em] text-paper/60">BREATHING</h2>
                 <p className="text-paper/80">{info.breathing}</p>
               </section>
             )}
@@ -125,7 +125,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
             animate={{ opacity: 1, y: 0 }}
             className="pt-10"
           >
-            <p className="font-mono font-semibold text-[10px] tracking-[0.25em] text-paper/70">TECHNICAL NOTE</p>
+            <p className="font-mono font-semibold text-label tracking-[0.25em] text-paper/70">TECHNICAL NOTE</p>
             <h1 className="mt-2 text-4xl font-black uppercase leading-[0.9] tracking-tighter">{exerciseName}</h1>
             <p className="mt-6 border-l-2 border-soviet pl-4 text-paper/80">
               Detailed instructions unavailable for this movement.
@@ -141,7 +141,7 @@ function StepSection({ label, steps }: { label: string; steps: string[] }) {
   if (steps.length === 0) return null
   return (
     <section className="mt-8 border-t border-paper/15 pt-6">
-      <h2 className="mb-4 font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/60">{label}</h2>
+      <h2 className="mb-4 font-mono font-semibold text-caption tracking-[0.25em] text-paper/60">{label}</h2>
       <ol className="space-y-4">
         {steps.map((step, i) => (
           <li key={i} className="flex items-start gap-4">

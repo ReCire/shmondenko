@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { LayoutGroup, motion } from 'framer-motion'
-import { AlertTriangle, ArrowLeft, Monitor, Moon, Sun, Volume2, VolumeX } from 'lucide-react'
+import { ALargeSmall, AlertTriangle, ArrowLeft, Monitor, Moon, Sun, Volume2, VolumeX } from 'lucide-react'
 import type { WorkoutPhase } from '../data/types'
 import { STOCK_PHASES, phaseTheme } from '../data/stockWorkouts'
 import { useAppStore, type ThemePreference } from '../store/useAppStore'
@@ -33,6 +33,8 @@ export function Settings() {
   const setPrepTime = useAppStore((s) => s.setPrepTime)
   const theme = useAppStore((s) => s.theme)
   const setTheme = useAppStore((s) => s.setTheme)
+  const largeType = useAppStore((s) => s.largeType)
+  const toggleLargeType = useAppStore((s) => s.toggleLargeType)
   const requestConfirm = useAppStore((s) => s.requestConfirm)
 
   const autoPhase = computeCurrentPhase(logs)
@@ -61,7 +63,7 @@ export function Settings() {
           <ArrowLeft size={22} />
         </button>
         <div>
-          <p className="font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/70">CONTROL PANEL</p>
+          <p className="font-mono font-semibold text-caption tracking-[0.25em] text-paper/70">CONTROL PANEL</p>
           <h1 className="text-2xl font-black uppercase leading-none tracking-tight">Settings</h1>
         </div>
       </header>
@@ -94,10 +96,10 @@ export function Settings() {
               ))}
             </div>
           </LayoutGroup>
-          <p className="mt-3 font-mono font-semibold text-[10px] leading-relaxed tracking-[0.15em] text-paper/60">
+          <p className="mt-3 font-mono font-semibold text-label leading-relaxed tracking-[0.15em] text-paper/60">
             {autoDescription.toUpperCase()}
           </p>
-          <p className="mt-1 font-mono font-semibold text-[10px] tracking-[0.15em] text-paper/60">
+          <p className="mt-1 font-mono font-semibold text-label tracking-[0.15em] text-paper/60">
             EFFECTIVE · BLOCK {NUMERAL[effectivePhase]} {effectivePhase.toUpperCase()}
           </p>
         </Section>
@@ -129,12 +131,38 @@ export function Settings() {
                       />
                     )}
                     <Icon size={18} strokeWidth={2.25} className="relative z-10" />
-                    <span className="relative z-10 font-mono font-semibold text-[10px] tracking-[0.22em]">{label.toUpperCase()}</span>
+                    <span className="relative z-10 font-mono font-semibold text-label tracking-[0.22em]">{label.toUpperCase()}</span>
                   </button>
                 )
               })}
             </div>
           </LayoutGroup>
+        </Section>
+
+        {/* Readability */}
+        <Section
+          label="READABILITY"
+          hint={largeType ? 'LARGE' : 'STANDARD'}
+          description="Enlarges the small labels and captions. Headlines and timers are unchanged."
+        >
+          <button
+            type="button"
+            onClick={toggleLargeType}
+            role="switch"
+            aria-checked={largeType}
+            className="flex w-full items-center justify-between border border-paper/15 px-4 py-4 active:bg-paper/5"
+          >
+            <span className="flex items-center gap-3">
+              <ALargeSmall size={18} className={largeType ? undefined : 'text-paper/50'} />
+              <span className="text-left">
+                <span className="block text-base font-bold uppercase tracking-tight">Large type</span>
+                <span className="block font-mono font-semibold text-label tracking-[0.2em] text-paper/70">
+                  {largeType ? 'ENABLED' : 'STANDARD'}
+                </span>
+              </span>
+            </span>
+            <Switch on={largeType} />
+          </button>
         </Section>
 
         {/* Prep countdown */}
@@ -164,7 +192,7 @@ export function Settings() {
                       />
                     )}
                     <span className="relative z-10 text-2xl font-black tabular tracking-tighter">{seconds}</span>
-                    <span className={cn('relative z-10 font-mono font-semibold text-[9px] tracking-[0.22em]', active ? 'text-ink/75' : 'text-paper/60')}>
+                    <span className={cn('relative z-10 font-mono font-semibold text-micro tracking-[0.22em]', active ? 'text-ink/75' : 'text-paper/60')}>
                       SEC
                     </span>
                   </button>
@@ -187,7 +215,7 @@ export function Settings() {
               {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} className="text-paper/50" />}
               <span className="text-left">
                 <span className="block text-base font-bold uppercase tracking-tight">Sound & haptics</span>
-                <span className="block font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/70">{soundEnabled ? 'ENABLED' : 'MUTED'}</span>
+                <span className="block font-mono font-semibold text-label tracking-[0.2em] text-paper/70">{soundEnabled ? 'ENABLED' : 'MUTED'}</span>
               </span>
             </span>
             <Switch on={soundEnabled} />
@@ -218,7 +246,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <p className="mt-auto pt-6 text-center font-mono font-semibold text-[10px] tracking-[0.22em] text-paper/50">
+        <p className="mt-auto pt-6 text-center font-mono font-semibold text-label tracking-[0.22em] text-paper/50">
           SHMONDENKO · PERIODISATION · DATA STAYS ON THIS DEVICE
         </p>
       </main>
@@ -244,8 +272,8 @@ function Section({
   return (
     <section>
       <div className={cn('flex items-baseline justify-between border-b pb-2', accent ? 'border-soviet/60' : 'border-paper/15')}>
-        <h2 className={cn('font-mono font-semibold text-[11px] tracking-[0.22em]', accent ? 'text-soviet' : 'text-paper/70')}>{label}</h2>
-        {hint && <span className={cn('font-mono font-semibold text-[10px] tracking-[0.2em]', accent ? 'text-soviet/70' : 'text-paper/60')}>{hint}</span>}
+        <h2 className={cn('font-mono font-semibold text-caption tracking-[0.22em]', accent ? 'text-soviet' : 'text-paper/70')}>{label}</h2>
+        {hint && <span className={cn('font-mono font-semibold text-label tracking-[0.2em]', accent ? 'text-soviet/70' : 'text-paper/60')}>{hint}</span>}
       </div>
       {description && <p className="mt-3 text-sm leading-relaxed text-paper/55">{description}</p>}
       <div className="mt-4">{children}</div>
@@ -287,7 +315,7 @@ function PhaseOption({
       <span className="relative z-10 w-8 shrink-0 font-mono text-lg font-black tabular">{numeral}</span>
       <span className="relative z-10 min-w-0 flex-1">
         <span className="block text-base font-bold uppercase tracking-tight">{title}</span>
-        <span className={cn('block font-mono font-semibold text-[10px] tracking-[0.2em]', active ? 'text-ink/75' : 'text-paper/70')}>
+        <span className={cn('block font-mono font-semibold text-label tracking-[0.2em]', active ? 'text-ink/75' : 'text-paper/70')}>
           {subtitle.toUpperCase()}
         </span>
       </span>

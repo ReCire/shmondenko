@@ -12,6 +12,15 @@
   --color-slate-cool: #4a5a6e;
   --color-slate-deep: #1e2733;
   --color-ice: #b8cbe0;
+
+  /*
+   * Small-label type scale. These three tiers cover every mono label in the UI
+   * (they replaced hard-coded text-[9px]/[10px]/[11px]), which is what lets
+   * `.type-large` below resize the whole chrome from one place.
+   */
+  --text-micro: 0.5625rem;
+  --text-label: 0.625rem;
+  --text-caption: 0.6875rem;
 }
 
 /*
@@ -30,6 +39,25 @@
   --color-ink: #050505;
   --color-paper: #f4f1ea;
   color-scheme: dark;
+}
+
+/*
+ * Opt-in readability scale, toggled on <html> by App.tsx next to the theme
+ * classes. Only the small tiers grow — display type is already legible at any
+ * age — and mono tracking is pulled in, because letter-spacing is em-based and
+ * would otherwise widen in step with the type and force labels to wrap.
+ * Unlayered on purpose: it has to outrank the tracking utilities.
+ */
+.type-large {
+  --text-micro: 0.75rem;
+  --text-label: 0.8125rem;
+  --text-caption: 0.875rem;
+  --text-xs: 0.9375rem;
+  --text-sm: 1.0625rem;
+}
+
+.type-large .font-mono {
+  letter-spacing: 0.1em;
 }
 
 @layer base {

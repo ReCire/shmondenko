@@ -91,7 +91,7 @@ export function WorkoutCreator({ editId }: Props) {
           <ArrowLeft size={22} />
         </button>
         <div>
-          <p className="font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/70">{existing ? 'EDIT' : 'NEW'} CUSTOM</p>
+          <p className="font-mono font-semibold text-caption tracking-[0.25em] text-paper/70">{existing ? 'EDIT' : 'NEW'} CUSTOM</p>
           <h1 className="text-2xl font-black uppercase leading-none tracking-tight text-balance">Workout Builder</h1>
         </div>
       </header>
@@ -117,7 +117,7 @@ export function WorkoutCreator({ editId }: Props) {
             className="flex items-center justify-between border border-paper/15 px-4 py-3.5 active:bg-paper/5"
           >
             <div className="text-left">
-              <p className="font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">LOOP REPEAT</p>
+              <p className="font-mono font-semibold text-caption tracking-[0.22em] text-paper/70">LOOP REPEAT</p>
               <p className="mt-0.5 text-sm text-paper/80">
                 {loop ? 'Runs until you stop it' : 'Runs through once, then ends'}
               </p>
@@ -135,8 +135,8 @@ export function WorkoutCreator({ editId }: Props) {
         {/* Blocks */}
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">EXERCISE BLOCKS</h2>
-            <span className="font-mono font-semibold text-[11px] tracking-widest text-paper/60">
+            <h2 className="font-mono font-semibold text-caption tracking-[0.22em] text-paper/70">EXERCISE BLOCKS</h2>
+            <span className="font-mono font-semibold text-caption tracking-widest text-paper/60">
               {blocks.length} · ~{formatDuration(preview).toUpperCase()}
             </span>
           </div>
@@ -295,7 +295,7 @@ function BlockEditor({
         >
           <GripVertical size={16} />
         </span>
-        <span className="font-mono font-semibold text-[11px] tracking-widest text-paper/60">{String(index + 1).padStart(2, '0')}</span>
+        <span className="font-mono font-semibold text-caption tracking-widest text-paper/60">{String(index + 1).padStart(2, '0')}</span>
         <input
           ref={inputRef}
           value={block.name}
@@ -559,10 +559,10 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
           className="overflow-hidden border-b-2 border-paper bg-ink"
         >
           <div className="flex items-center justify-between border-b border-paper/15 bg-paper/5 px-3 py-1.5">
-            <span className="font-mono font-semibold text-[10px] tracking-[0.22em] text-paper/60">
+            <span className="font-mono font-semibold text-label tracking-[0.22em] text-paper/60">
               {query.trim() ? `MATCHES · ${matches.length}` : `LIBRARY · ${matches.length}`}
             </span>
-            <span className="font-mono font-semibold text-[10px] tracking-[0.22em] text-soviet">TAP TO FILL</span>
+            <span className="font-mono font-semibold text-label tracking-[0.22em] text-soviet">TAP TO FILL</span>
           </div>
 
           <div
@@ -573,7 +573,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
             className="overflow-y-auto overscroll-contain"
           >
             {shown.length === 0 ? (
-              <p className="px-3 py-5 font-mono font-semibold text-[11px] leading-relaxed tracking-[0.2em] text-paper/70">
+              <p className="px-3 py-5 font-mono font-semibold text-caption leading-relaxed tracking-[0.2em] text-paper/70">
                 NO MATCH IN LIBRARY.
                 <br />
                 KEEP TYPING — CUSTOM NAMES ARE FINE.
@@ -602,7 +602,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
                     </span>
                     <span
                       className={cn(
-                        'mt-0.5 block truncate font-mono font-semibold text-[10px] tracking-[0.18em]',
+                        'mt-0.5 block truncate font-mono font-semibold text-label tracking-[0.18em]',
                         i === active ? 'text-ink/75' : 'text-paper/60',
                       )}
                     >
@@ -612,7 +612,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
                   </span>
                   <span
                     className={cn(
-                      'shrink-0 font-mono font-semibold text-[10px] tracking-[0.2em]',
+                      'shrink-0 font-mono font-semibold text-label tracking-[0.2em]',
                       i === active ? 'text-ink/70' : 'text-paper/50',
                     )}
                   >
@@ -622,7 +622,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
               ))
             )}
             {matches.length > shown.length && (
-              <p className="px-3 py-2 font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/50">
+              <p className="px-3 py-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/50">
                 +{matches.length - shown.length} MORE · REFINE SEARCH
               </p>
             )}
@@ -650,13 +650,13 @@ function Highlight({ text, query }: { text: string; query: string }) {
 /* ---------- Primitives ---------- */
 
 function Label({ children }: { children: ReactNode }) {
-  return <span className="mb-1.5 block h-5 font-mono font-semibold text-[10px] leading-5 tracking-[0.2em] text-paper/70">{children}</span>
+  return <span className="mb-1.5 block h-5 font-mono font-semibold text-label leading-5 tracking-[0.2em] text-paper/70">{children}</span>
 }
 
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="flex justify-between font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">
+      <span className="flex justify-between font-mono font-semibold text-caption tracking-[0.22em] text-paper/70">
         {label}
         {error && <span className="text-soviet">{error.toUpperCase()}</span>}
       </span>
@@ -682,7 +682,7 @@ function Segmented<T extends string>({
           type="button"
           onClick={() => onChange(v)}
           className={cn(
-            'flex-1 font-mono font-semibold text-[9px] tracking-widest transition-colors',
+            'flex-1 font-mono font-semibold text-micro tracking-widest transition-colors',
             v === value ? 'bg-paper text-ink' : 'text-paper/50',
           )}
         >
@@ -733,7 +733,7 @@ function NumberInput({
           className="w-full min-w-0 bg-transparent text-center text-2xl font-black tabular focus:outline-none"
         />
         {suffix && (
-          <span className="pointer-events-none absolute right-0 top-0 font-mono font-semibold text-[10px] text-paper/60">{suffix}</span>
+          <span className="pointer-events-none absolute right-0 top-0 font-mono font-semibold text-label text-paper/60">{suffix}</span>
         )}
       </div>
       <button

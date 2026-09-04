@@ -41,7 +41,7 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
               {workout.isStock ? `DAY ${index + 1}` : 'CUSTOM'}
             </span>
             {workout.loop && (
-              <span className="inline-flex items-center gap-1 font-mono font-semibold text-[10px] tracking-widest text-paper/50">
+              <span className="inline-flex items-center gap-1 font-mono font-semibold text-label tracking-widest text-paper/50">
                 <Repeat size={10} /> LOOP
               </span>
             )}

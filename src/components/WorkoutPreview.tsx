@@ -52,7 +52,7 @@ export function WorkoutPreview({ workout }: Props) {
         >
           <ArrowLeft size={22} />
         </button>
-        <p className="font-mono font-semibold text-[10px] tracking-[0.25em] text-paper/70">SESSION BRIEF</p>
+        <p className="font-mono font-semibold text-label tracking-[0.25em] text-paper/70">SESSION BRIEF</p>
         {workout.isStock ? (
           <div className="w-11" />
         ) : (
@@ -71,7 +71,7 @@ export function WorkoutPreview({ workout }: Props) {
         {/* Title block */}
         <motion.section variants={item} className="relative border-l-[6px] pl-5">
           <span className={cn('absolute -left-[6px] inset-y-0 w-[6px]', PHASE_ACCENT[workout.phase])} />
-          <p className="font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">{PHASE_LABEL[workout.phase].toUpperCase()}</p>
+          <p className="font-mono font-semibold text-caption tracking-[0.22em] text-paper/70">{PHASE_LABEL[workout.phase].toUpperCase()}</p>
           <h1 className="mt-2 text-[clamp(2rem,9.5vw,3.5rem)] font-black uppercase leading-[0.9] tracking-tighter text-balance">
             {workout.name}
           </h1>
@@ -88,8 +88,8 @@ export function WorkoutPreview({ workout }: Props) {
         {/* Block list */}
         <motion.section variants={item} className="mt-8">
           <div className="flex items-baseline justify-between border-b border-paper/15 pb-2">
-            <h2 className="font-mono font-semibold text-[11px] tracking-[0.22em] text-paper/70">PROTOCOL</h2>
-            <span className="font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/60">
+            <h2 className="font-mono font-semibold text-caption tracking-[0.22em] text-paper/70">PROTOCOL</h2>
+            <span className="font-mono font-semibold text-label tracking-[0.2em] text-paper/60">
               {workout.blocks.length} EXERCISES · {formatDuration(workSeconds).toUpperCase()} UNDER LOAD
             </span>
           </div>
@@ -113,7 +113,7 @@ export function WorkoutPreview({ workout }: Props) {
                     <span className="text-2xl font-bold uppercase leading-none tracking-tight">{b.name}</span>
                     <ChevronRight size={18} className="text-paper/50 transition-transform group-active:translate-x-1" />
                   </button>
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono font-semibold text-[11px] tabular text-paper/55">
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono font-semibold text-caption tabular text-paper/55">
                     <span>
                       <span className="text-paper">{b.sets}</span> SETS
                     </span>
@@ -132,7 +132,7 @@ export function WorkoutPreview({ workout }: Props) {
         </motion.section>
 
         {workout.loop && (
-          <motion.p variants={item} className="mt-6 inline-flex items-center gap-2 font-mono font-semibold text-[11px] tracking-[0.2em] text-paper/50">
+          <motion.p variants={item} className="mt-6 inline-flex items-center gap-2 font-mono font-semibold text-caption tracking-[0.2em] text-paper/50">
             <Repeat size={12} /> LOOPS UNTIL YOU STOP IT
           </motion.p>
         )}
@@ -165,7 +165,7 @@ export function WorkoutPreview({ workout }: Props) {
 function Stat({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={cn('flex flex-col gap-2 p-4', className)}>
-      <span className="font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/70">{label}</span>
+      <span className="font-mono font-semibold text-label tracking-[0.2em] text-paper/70">{label}</span>
       <span className="truncate text-xl font-black tabular tracking-tight">{value}</span>
     </div>
   )

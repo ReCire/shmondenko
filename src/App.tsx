@@ -36,11 +36,20 @@ function useThemeClass() {
   }, [theme])
 }
 
+/** Applies `.type-large` to <html> for the opt-in readability scale. */
+function useTypeScaleClass() {
+  const largeType = useAppStore((s) => s.largeType)
+  useEffect(() => {
+    document.documentElement.classList.toggle('type-large', largeType)
+  }, [largeType])
+}
+
 export default function App() {
   const screen = useAppStore((s) => s.screen)
   const getWorkout = useAppStore((s) => s.getWorkout)
   const navigate = useAppStore((s) => s.navigate)
   useThemeClass()
+  useTypeScaleClass()
 
   const needsWorkout = screen.name === 'player' || screen.name === 'preview'
   const workout = needsWorkout ? getWorkout(screen.workoutId) : undefined

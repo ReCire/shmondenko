@@ -67,12 +67,12 @@ export function Dashboard() {
       {/* Header */}
       <header className="flex items-start justify-between px-6 pb-6">
         <div>
-          <p className="font-mono font-semibold text-[11px] tracking-[0.25em] text-paper/70">ШМОНДЕНКО · PERIODISATION</p>
+          <p className="font-mono font-semibold text-caption tracking-[0.25em] text-paper/70">ШМОНДЕНКО · PERIODISATION</p>
           <h1 className="mt-1 text-[clamp(2rem,9.5vw,3rem)] font-black uppercase leading-[0.9] tracking-tighter text-balance">
             Shmondenko
             <span className="text-soviet">.</span>
           </h1>
-          <p className="mt-2 flex items-center gap-2 font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/55">
+          <p className="mt-2 flex items-center gap-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/55">
             <span className="h-1.5 w-1.5 bg-soviet" />
             CURRENT PHASE · {currentPhase.toUpperCase()}
             {phaseOverride && <span className="text-paper/55">· MANUAL</span>}
@@ -91,8 +91,8 @@ export function Dashboard() {
       {/* Program track selector */}
       <section className="mx-6 mb-4">
         <div className="flex items-baseline justify-between pb-2">
-          <p className="font-mono font-semibold text-[10px] tracking-[0.22em] text-paper/70">PROGRAM TRACK</p>
-          <p className="font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/60">{activeTrack.description.toUpperCase()}</p>
+          <p className="font-mono font-semibold text-label tracking-[0.22em] text-paper/70">PROGRAM TRACK</p>
+          <p className="font-mono font-semibold text-label tracking-[0.2em] text-paper/60">{activeTrack.description.toUpperCase()}</p>
         </div>
         <LayoutGroup id="program-track">
           <div role="radiogroup" aria-label="Program track" className="grid grid-cols-3 border border-paper/15">
@@ -107,7 +107,7 @@ export function Dashboard() {
                   aria-checked={active}
                   onClick={() => setProgram(t.key)}
                   className={cn(
-                    'relative flex h-12 items-center justify-center gap-2 font-mono font-semibold text-[11px] tracking-[0.2em] transition-colors',
+                    'relative flex h-12 items-center justify-center gap-2 font-mono font-semibold text-caption tracking-[0.2em] transition-colors',
                     i > 0 && 'border-l border-paper/15',
                     active ? 'text-ink' : 'text-paper/50 active:bg-paper/5',
                   )}
@@ -134,17 +134,17 @@ export function Dashboard() {
       <section className="mx-6 mb-8 border border-paper/15">
         <div className="flex items-stretch">
           <div className="flex flex-1 flex-col justify-between border-r border-paper/15 p-5">
-            <p className="font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/70">CONSISTENCY STREAK</p>
+            <p className="font-mono font-semibold text-label tracking-[0.2em] text-paper/70">CONSISTENCY STREAK</p>
             <div className="mt-3 flex items-end gap-2">
               <span className="text-7xl font-black leading-none tabular tracking-tighter">{streak}</span>
               <span className="mb-2 font-mono text-xs tracking-widest text-paper/60">{streak === 1 ? 'DAY' : 'DAYS'}</span>
             </div>
           </div>
           <div className="flex w-32 flex-col justify-between p-5">
-            <p className="font-mono font-semibold text-[10px] tracking-[0.2em] text-paper/70">TOTAL</p>
+            <p className="font-mono font-semibold text-label tracking-[0.2em] text-paper/70">TOTAL</p>
             <div>
               <span className="text-4xl font-black leading-none tabular tracking-tighter">{logs.length}</span>
-              <p className="mt-1 font-mono font-semibold text-[10px] tracking-widest text-paper/60">SESSIONS</p>
+              <p className="mt-1 font-mono font-semibold text-label tracking-widest text-paper/60">SESSIONS</p>
             </div>
           </div>
         </div>
@@ -153,13 +153,13 @@ export function Dashboard() {
             {last7.map((d) => (
               <div key={d.key} className="flex flex-col items-center gap-1">
                 <div className={cn('h-2.5 w-2.5', d.done ? 'bg-soviet' : 'bg-paper/15')} />
-                <span className="font-mono font-semibold text-[9px] text-paper/60">{d.label}</span>
+                <span className="font-mono font-semibold text-micro text-paper/60">{d.label}</span>
               </div>
             ))}
           </div>
           <p
             className={cn(
-              'flex items-center gap-1.5 font-mono font-semibold text-[10px] tracking-widest',
+              'flex items-center gap-1.5 font-mono font-semibold text-label tracking-widest',
               trainedToday ? 'text-soviet' : 'text-paper/50',
             )}
           >
@@ -184,7 +184,7 @@ export function Dashboard() {
               type="button"
               onClick={() => setTab(key)}
               className={cn(
-                'relative pb-3 font-mono font-semibold text-[11px] tracking-[0.2em] transition-colors',
+                'relative pb-3 font-mono font-semibold text-caption tracking-[0.2em] transition-colors',
                 key === 'fuel' ? 'w-16 shrink-0' : 'flex-1',
                 tab === key ? 'text-paper' : 'text-paper/60',
               )}
@@ -216,13 +216,13 @@ export function Dashboard() {
                 return (
                   <section key={phase} className="flex flex-col gap-3">
                     <div className="flex items-baseline gap-3 border-b border-paper/15 pb-2">
-                      <h2 className={cn('font-mono font-semibold text-[11px] tracking-[0.2em]', phase === currentPhase ? 'text-paper' : 'text-paper/70')}>
+                      <h2 className={cn('font-mono font-semibold text-caption tracking-[0.2em]', phase === currentPhase ? 'text-paper' : 'text-paper/70')}>
                         {phaseLabel(phase).toUpperCase()}
                       </h2>
                       {phase === currentPhase && (
-                        <span className="bg-soviet px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.2em] text-paper">CURRENT</span>
+                        <span className="bg-soviet px-1.5 py-0.5 font-mono text-micro font-bold tracking-[0.2em] text-paper">CURRENT</span>
                       )}
-                      <span className="ml-auto shrink-0 font-mono font-semibold text-[10px] tracking-[0.15em] text-paper/60">{phaseTheme(phase).toUpperCase()}</span>
+                      <span className="ml-auto shrink-0 font-mono font-semibold text-label tracking-[0.15em] text-paper/60">{phaseTheme(phase).toUpperCase()}</span>
                     </div>
                     {days.map(renderCard)}
                   </section>
