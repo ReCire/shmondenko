@@ -123,6 +123,9 @@ const median = (ns: number[]): number => {
   return sorted.length % 2 === 1 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2)
 }
 
+/** Seconds snap to the 5s grid the block steppers move on. */
+const round5 = (n: number): number => Math.round(n / 5) * 5
+
 const mostCommon = <T,>(xs: T[]): T => {
   const counts = new Map<T, number>()
   for (const x of xs) counts.set(x, (counts.get(x) ?? 0) + 1)
@@ -173,9 +176,9 @@ export const buildExerciseLibrary = (workouts: Workout[]): LibraryExercise[] => 
       return {
         name: acc.name,
         mode: mostCommon(acc.modes),
-        workSeconds: acc.work.length ? median(acc.work) : 30,
+        workSeconds: acc.work.length ? Math.max(5, round5(median(acc.work))) : 30,
         reps: acc.reps.length ? median(acc.reps) : 10,
-        restSeconds: median(acc.rest),
+        restSeconds: round5(median(acc.rest)),
         sets: median(acc.sets),
         tracks: (['home', 'outdoors', 'gym'] as ProgramTrack[]).filter((t) => acc.tracks.has(t)),
         tags: info ? [info.category, ...info.muscles].map((t) => t.toLowerCase()) : [],

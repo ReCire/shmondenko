@@ -437,6 +437,22 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
     }
   }, [open, measure, inputRef])
 
+  // Focus moving to another control (Tab, or another block's field) dismisses.
+  // A null relatedTarget — a touch landing on a non-focusable node — is left to
+  // the pointer listener below, so tapping a suggestion still registers.
+  useEffect(() => {
+    const el = inputRef.current
+    if (!open || !el) return
+    const onBlur = (e: FocusEvent) => {
+      const next = e.relatedTarget as Node | null
+      if (!next) return
+      if (anchorRef.current?.contains(next) || listRef.current?.parentElement?.contains(next)) return
+      onClose()
+    }
+    el.addEventListener('blur', onBlur)
+    return () => el.removeEventListener('blur', onBlur)
+  }, [open, anchorRef, inputRef, onClose])
+
   // Dismiss on any pointer landing outside the row and the palette.
   useEffect(() => {
     if (!open) return
@@ -502,7 +518,9 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
           key={id}
           initial={{ opacity: 0, y: anchor.placement === 'below' ? -10 : 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: anchor.placement === 'below' ? -6 : 6 }}
+          // pointerEvents is dropped the instant it starts leaving, so a tap can
+          // never land on a palette that is only still on screen for the fade.
+          exit={{ opacity: 0, y: anchor.placement === 'below' ? -6 : 6, pointerEvents: 'none' }}
           transition={{ type: 'spring', stiffness: 780, damping: 46, mass: 0.5 }}
           style={{
             left: anchor.left,
