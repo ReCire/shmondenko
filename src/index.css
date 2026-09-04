@@ -8,6 +8,12 @@
   --color-paper: #f4f1ea;
   --color-soviet: #c8102e;
   --color-soviet-deep: #7a0a1c;
+  /*
+   * Red as *text* on a dark ground. #c8102e only manages 3.46:1 there, so this
+   * tier brightens with the theme while --color-soviet stays put for fills —
+   * a brighter fill would drag the paper text on top of it down to 3.1:1.
+   */
+  --color-soviet-text: #ff3b5c;
   --color-ember: #ff4e1a;
   --color-slate-cool: #4a5a6e;
   --color-slate-deep: #1e2733;
@@ -32,12 +38,15 @@
 .theme-light {
   --color-ink: #f4f1ea;
   --color-paper: #050505;
+  /* On a paper ground the deep red is already 5.22:1; the bright one is 3.09:1. */
+  --color-soviet-text: #c8102e;
   color-scheme: light;
 }
 
 .theme-dark {
   --color-ink: #050505;
   --color-paper: #f4f1ea;
+  --color-soviet-text: #ff3b5c;
   color-scheme: dark;
 }
 

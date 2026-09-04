@@ -41,14 +41,14 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
               {workout.isStock ? `DAY ${index + 1}` : 'CUSTOM'}
             </span>
             {workout.loop && (
-              <span className="inline-flex items-center gap-1 font-mono font-semibold text-label tracking-widest text-paper/50">
+              <span className="inline-flex items-center gap-1 font-mono font-semibold text-label tracking-widest text-paper/60">
                 <Repeat size={10} /> LOOP
               </span>
             )}
           </div>
           <h3 className="truncate text-2xl font-bold uppercase leading-none tracking-tight">{workout.name}</h3>
           {(workout.focus || workout.subtitle) && (
-            <p className="truncate text-sm text-paper/55">{workout.focus ?? workout.subtitle}</p>
+            <p className="truncate text-sm text-paper/65">{workout.focus ?? workout.subtitle}</p>
           )}
           <p className="mt-1 truncate font-mono text-xs text-paper/70">
             {workout.blocks.map((b) => b.name).join(' · ')}
@@ -78,7 +78,7 @@ export function WorkoutCard({ workout, index, onStart, onEdit, onDelete }: Props
             <button
               type="button"
               onClick={onDelete}
-              className="flex flex-1 items-center justify-center gap-2 border-l border-paper/10 py-3 font-mono text-xs tracking-widest text-soviet active:bg-soviet/10"
+              className="flex flex-1 items-center justify-center gap-2 border-l border-paper/10 py-3 font-mono text-xs tracking-widest text-soviet-text active:bg-soviet/10"
             >
               <Trash2 size={13} /> DELETE
             </button>

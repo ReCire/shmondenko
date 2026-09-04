@@ -13,10 +13,10 @@ export function FuelGuide() {
     <motion.article variants={list} initial="initial" animate="animate" className="flex flex-col gap-6">
       {/* Document header */}
       <motion.header variants={item} className="relative border-2 border-paper/80 p-5">
-        <span className="absolute -top-2.5 left-4 bg-ink px-2 font-mono font-semibold text-label tracking-[0.25em] text-soviet">
+        <span className="absolute -top-2.5 left-4 bg-ink px-2 font-mono font-semibold text-label tracking-[0.25em] text-soviet-text">
           DIRECTIVE 03 · NUTRITION
         </span>
-        <span className="absolute right-4 top-3 -rotate-6 border-2 border-soviet px-2 py-0.5 font-mono text-label font-bold tracking-[0.22em] text-soviet">
+        <span className="absolute right-4 top-3 -rotate-6 border-2 border-soviet-text px-2 py-0.5 font-mono text-label font-bold tracking-[0.22em] text-soviet-text">
           DECLASSIFIED
         </span>
         <p className="mt-3 font-mono font-semibold text-label tracking-[0.22em] text-paper/70">ДИРЕКТИВА · ПИТАНИЕ</p>
@@ -91,8 +91,8 @@ export function FuelGuide() {
 
       {/* Footer stamp */}
       <motion.footer variants={item} className="flex items-center justify-between border-t border-paper/15 pt-4">
-        <p className="font-mono font-semibold text-micro tracking-[0.22em] text-paper/55">FOR TRAINING PERSONNEL ONLY</p>
-        <p className="font-mono font-semibold text-micro tracking-[0.22em] text-paper/55">ФОРМА № 3 · СССР</p>
+        <p className="font-mono font-semibold text-micro tracking-[0.22em] text-paper/65">FOR TRAINING PERSONNEL ONLY</p>
+        <p className="font-mono font-semibold text-micro tracking-[0.22em] text-paper/65">ФОРМА № 3 · СССР</p>
       </motion.footer>
     </motion.article>
   )
@@ -114,7 +114,7 @@ function Clause({
   return (
     <motion.section variants={variants}>
       <div className="mb-3 flex items-baseline gap-3">
-        <span className="font-mono text-xs font-bold tracking-widest text-soviet">{index}</span>
+        <span className="font-mono text-xs font-bold tracking-widest text-soviet-text">{index}</span>
         <h3 className="text-xl font-black uppercase tracking-tight">{title}</h3>
       </div>
       {children}

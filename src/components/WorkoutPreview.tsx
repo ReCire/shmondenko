@@ -111,9 +111,9 @@ export function WorkoutPreview({ workout }: Props) {
                     className="group flex w-full items-center gap-1 text-left transition-colors hover:text-paper/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-paper/50"
                   >
                     <span className="text-2xl font-bold uppercase leading-none tracking-tight">{b.name}</span>
-                    <ChevronRight size={18} className="text-paper/50 transition-transform group-active:translate-x-1" />
+                    <ChevronRight size={18} className="text-paper/60 transition-transform group-active:translate-x-1" />
                   </button>
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono font-semibold text-caption tabular text-paper/55">
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono font-semibold text-caption tabular text-paper/65">
                     <span>
                       <span className="text-paper">{b.sets}</span> SETS
                     </span>
@@ -132,7 +132,7 @@ export function WorkoutPreview({ workout }: Props) {
         </motion.section>
 
         {workout.loop && (
-          <motion.p variants={item} className="mt-6 inline-flex items-center gap-2 font-mono font-semibold text-caption tracking-[0.2em] text-paper/50">
+          <motion.p variants={item} className="mt-6 inline-flex items-center gap-2 font-mono font-semibold text-caption tracking-[0.2em] text-paper/60">
             <Repeat size={12} /> LOOPS UNTIL YOU STOP IT
           </motion.p>
         )}
@@ -153,7 +153,7 @@ export function WorkoutPreview({ workout }: Props) {
             await Promise.race([unlockAudio(), new Promise<void>((resolve) => setTimeout(resolve, 500))]).catch(() => {})
             navigate({ name: 'player', workoutId: workout.id })
           }}
-          className="flex w-full items-center justify-center gap-3 bg-soviet py-6 text-xl font-black uppercase tracking-[0.25em] text-paper shadow-[0_16px_48px_-12px_rgba(200,16,46,0.8)]"
+          className="flex w-full items-center justify-center gap-3 bg-soviet py-6 text-xl font-black uppercase tracking-[0.25em] text-[#f4f1ea] shadow-[0_16px_48px_-12px_rgba(200,16,46,0.8)]"
         >
           <Play size={20} fill="currentColor" /> Begin Session
         </motion.button>

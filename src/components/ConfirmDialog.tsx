@@ -66,7 +66,7 @@ export function ConfirmDialog() {
           >
             <div className="flex items-center justify-between border-b-[3px] border-paper px-5 py-2.5">
               <span className="font-mono font-semibold text-label tracking-[0.25em] text-paper/60">CONFIRMATION REQUIRED</span>
-              <AlertTriangle size={14} className="text-soviet" />
+              <AlertTriangle size={14} className="text-soviet-text" />
             </div>
 
             <div className="px-5 pb-6 pt-5">

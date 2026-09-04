@@ -72,10 +72,10 @@ export function Dashboard() {
             Shmondenko
             <span className="text-soviet">.</span>
           </h1>
-          <p className="mt-2 flex items-center gap-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/55">
+          <p className="mt-2 flex items-center gap-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/65">
             <span className="h-1.5 w-1.5 bg-soviet" />
             CURRENT PHASE · {currentPhase.toUpperCase()}
-            {phaseOverride && <span className="text-paper/55">· MANUAL</span>}
+            {phaseOverride && <span className="text-paper/65">· MANUAL</span>}
           </p>
         </div>
         <button
@@ -109,7 +109,7 @@ export function Dashboard() {
                   className={cn(
                     'relative flex h-12 items-center justify-center gap-2 font-mono font-semibold text-caption tracking-[0.2em] transition-colors',
                     i > 0 && 'border-l border-paper/15',
-                    active ? 'text-ink' : 'text-paper/50 active:bg-paper/5',
+                    active ? 'text-ink' : 'text-paper/60 active:bg-paper/5',
                   )}
                 >
                   {active && (
@@ -160,7 +160,7 @@ export function Dashboard() {
           <p
             className={cn(
               'flex items-center gap-1.5 font-mono font-semibold text-label tracking-widest',
-              trainedToday ? 'text-soviet' : 'text-paper/50',
+              trainedToday ? 'text-soviet-text' : 'text-paper/60',
             )}
           >
             <Flame size={12} fill={trainedToday ? 'currentColor' : 'none'} />
@@ -191,7 +191,7 @@ export function Dashboard() {
             >
               {label}
               {tab === key && (
-                <motion.span layoutId="tab-underline" className="absolute inset-x-0 -bottom-px h-0.5 bg-soviet" />
+                <motion.span layoutId="tab-underline" className="absolute inset-x-0 -bottom-px h-0.5 bg-soviet-text" />
               )}
             </button>
           ))}
@@ -220,7 +220,7 @@ export function Dashboard() {
                         {phaseLabel(phase).toUpperCase()}
                       </h2>
                       {phase === currentPhase && (
-                        <span className="bg-soviet px-1.5 py-0.5 font-mono text-micro font-bold tracking-[0.2em] text-paper">CURRENT</span>
+                        <span className="bg-soviet px-1.5 py-0.5 font-mono text-micro font-bold tracking-[0.2em] text-[#f4f1ea]">CURRENT</span>
                       )}
                       <span className="ml-auto shrink-0 font-mono font-semibold text-label tracking-[0.15em] text-paper/60">{phaseTheme(phase).toUpperCase()}</span>
                     </div>
@@ -242,7 +242,7 @@ export function Dashboard() {
               className="flex flex-1 flex-col items-center justify-center gap-4 border border-dashed border-paper/20 px-6 py-14 text-center"
             >
               <p className="text-xl font-bold uppercase tracking-tight">No custom workouts</p>
-              <p className="max-w-[16rem] text-sm text-paper/50">Build your own loop. Time or reps, rest, sets. It saves on this device.</p>
+              <p className="max-w-[16rem] text-sm text-paper/60">Build your own loop. Time or reps, rest, sets. It saves on this device.</p>
               <button
                 type="button"
                 onClick={() => navigate({ name: 'creator' })}
@@ -264,7 +264,7 @@ export function Dashboard() {
         whileTap={{ scale: 0.92 }}
         onClick={() => navigate({ name: 'creator' })}
         aria-label="Create custom workout"
-        className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 flex h-16 w-16 items-center justify-center bg-soviet text-paper shadow-[0_12px_40px_-8px_rgba(200,16,46,0.7)]"
+        className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-6 flex h-16 w-16 items-center justify-center bg-soviet text-[#f4f1ea] shadow-[0_12px_40px_-8px_rgba(200,16,46,0.7)]"
       >
         <Plus size={30} strokeWidth={2.5} />
       </motion.button>

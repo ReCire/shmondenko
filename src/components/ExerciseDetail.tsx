@@ -58,11 +58,11 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
 
             {info.commonMistakes.length > 0 && (
               <section className="mt-8 border-t border-paper/15 pt-6">
-                <h2 className="mb-4 font-mono font-semibold text-caption tracking-[0.25em] text-soviet">COMMON ERRORS</h2>
+                <h2 className="mb-4 font-mono font-semibold text-caption tracking-[0.25em] text-soviet-text">COMMON ERRORS</h2>
                 <ul className="space-y-4">
                   {info.commonMistakes.map((m, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <AlertTriangle size={14} className="mt-1 shrink-0 text-soviet" />
+                      <AlertTriangle size={14} className="mt-1 shrink-0 text-soviet-text" />
                       <span className="text-paper/80">{m}</span>
                     </li>
                   ))}
@@ -127,7 +127,7 @@ export function ExerciseDetail({ exerciseName, onBack }: Props) {
           >
             <p className="font-mono font-semibold text-label tracking-[0.25em] text-paper/70">TECHNICAL NOTE</p>
             <h1 className="mt-2 text-4xl font-black uppercase leading-[0.9] tracking-tighter">{exerciseName}</h1>
-            <p className="mt-6 border-l-2 border-soviet pl-4 text-paper/80">
+            <p className="mt-6 border-l-2 border-soviet-text pl-4 text-paper/80">
               Detailed instructions unavailable for this movement.
             </p>
           </motion.div>

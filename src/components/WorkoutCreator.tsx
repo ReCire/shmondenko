@@ -105,7 +105,7 @@ export function WorkoutCreator({ editId }: Props) {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. HYPERTROPHY B"
               autoFocus={!existing}
-              className="w-full border-b-2 border-paper/25 bg-transparent pb-2 text-3xl font-black uppercase tracking-tight placeholder:text-paper/55 focus:border-soviet focus:outline-none"
+              className="w-full border-b-2 border-paper/25 bg-transparent pb-2 text-3xl font-black uppercase tracking-tight placeholder:text-paper/65 focus:border-soviet-text focus:outline-none"
             />
           </Field>
 
@@ -187,7 +187,7 @@ export function WorkoutCreator({ editId }: Props) {
           onClick={submit}
           className={cn(
             'w-full py-5 text-lg font-black uppercase tracking-[0.2em] transition-colors',
-            invalid && touched ? 'bg-paper/20 text-paper/50' : 'bg-paper text-ink',
+            invalid && touched ? 'bg-paper/20 text-paper/60' : 'bg-paper text-ink',
           )}
         >
           {existing ? 'Save Changes' : 'Save Workout'}
@@ -291,7 +291,7 @@ function BlockEditor({
             dragControls.start(e)
           }}
           aria-label="Drag to reorder"
-          className="cursor-grab touch-none py-3 text-paper/50 active:cursor-grabbing"
+          className="cursor-grab touch-none py-3 text-paper/60 active:cursor-grabbing"
         >
           <GripVertical size={16} />
         </span>
@@ -312,7 +312,7 @@ function BlockEditor({
           placeholder="Search library or type"
           className={cn(
             'min-w-0 flex-1 bg-transparent py-3 text-lg font-bold uppercase tracking-tight placeholder:font-normal placeholder:normal-case placeholder:text-paper/70 focus:outline-none',
-            showError && 'placeholder:text-soviet',
+            showError && 'placeholder:text-soviet-text',
           )}
         />
         <button
@@ -338,7 +338,7 @@ function BlockEditor({
             type="button"
             onClick={onRemove}
             aria-label="Remove block"
-            className="flex h-10 w-10 items-center justify-center text-paper/60 active:text-soviet"
+            className="flex h-10 w-10 items-center justify-center text-paper/60 active:text-soviet-text"
           >
             <Trash2 size={16} />
           </button>
@@ -562,7 +562,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
             <span className="font-mono font-semibold text-label tracking-[0.22em] text-paper/60">
               {query.trim() ? `MATCHES · ${matches.length}` : `LIBRARY · ${matches.length}`}
             </span>
-            <span className="font-mono font-semibold text-label tracking-[0.22em] text-soviet">TAP TO FILL</span>
+            <span className="font-mono font-semibold text-label tracking-[0.22em] text-soviet-text">TAP TO FILL</span>
           </div>
 
           <div
@@ -598,7 +598,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[15px] font-bold uppercase leading-tight tracking-tight">
-                      <Highlight text={ex.name} query={query} />
+                      <Highlight text={ex.name} query={query} onPaper={i === active} />
                     </span>
                     <span
                       className={cn(
@@ -613,7 +613,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
                   <span
                     className={cn(
                       'shrink-0 font-mono font-semibold text-label tracking-[0.2em]',
-                      i === active ? 'text-ink/70' : 'text-paper/50',
+                      i === active ? 'text-ink/70' : 'text-paper/60',
                     )}
                   >
                     {ex.tracks.map((t) => t[0].toUpperCase()).join('')}
@@ -622,7 +622,7 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
               ))
             )}
             {matches.length > shown.length && (
-              <p className="px-3 py-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/50">
+              <p className="px-3 py-2 font-mono font-semibold text-label tracking-[0.2em] text-paper/60">
                 +{matches.length - shown.length} MORE · REFINE SEARCH
               </p>
             )}
@@ -633,15 +633,19 @@ function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, o
   )
 }
 
-/** Marks the matched span of the query inside a library name. */
-function Highlight({ text, query }: { text: string; query: string }) {
+/**
+ * Marks the matched span of the query inside a library name. The active row
+ * inverts to a paper ground, where the accent has to flip back to the deep red
+ * — the bright one is only 3.1:1 against paper.
+ */
+function Highlight({ text, query, onPaper }: { text: string; query: string; onPaper: boolean }) {
   const q = query.trim()
   const i = q ? text.toLowerCase().indexOf(q.toLowerCase()) : -1
   if (i < 0) return <>{text}</>
   return (
     <>
       {text.slice(0, i)}
-      <span className="text-soviet">{text.slice(i, i + q.length)}</span>
+      <span className={onPaper ? 'text-soviet' : 'text-soviet-text'}>{text.slice(i, i + q.length)}</span>
       {text.slice(i + q.length)}
     </>
   )
@@ -658,7 +662,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     <label className="flex flex-col gap-2">
       <span className="flex justify-between font-mono font-semibold text-caption tracking-[0.22em] text-paper/70">
         {label}
-        {error && <span className="text-soviet">{error.toUpperCase()}</span>}
+        {error && <span className="text-soviet-text">{error.toUpperCase()}</span>}
       </span>
       {children}
     </label>
@@ -683,7 +687,7 @@ function Segmented<T extends string>({
           onClick={() => onChange(v)}
           className={cn(
             'flex-1 font-mono font-semibold text-micro tracking-widest transition-colors',
-            v === value ? 'bg-paper text-ink' : 'text-paper/50',
+            v === value ? 'bg-paper text-ink' : 'text-paper/60',
           )}
         >
           {label}
@@ -715,7 +719,7 @@ function NumberInput({
         type="button"
         onClick={() => onChange(clamp(value - step))}
         aria-label="Decrease"
-        className="h-9 w-7 shrink-0 text-lg leading-none text-paper/50 active:text-paper"
+        className="h-9 w-7 shrink-0 text-lg leading-none text-paper/60 active:text-paper"
       >
         −
       </button>
@@ -740,7 +744,7 @@ function NumberInput({
         type="button"
         onClick={() => onChange(clamp(value + step))}
         aria-label="Increase"
-        className="h-9 w-7 shrink-0 text-lg leading-none text-paper/50 active:text-paper"
+        className="h-9 w-7 shrink-0 text-lg leading-none text-paper/60 active:text-paper"
       >
         +
       </button>

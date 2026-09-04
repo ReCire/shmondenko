@@ -153,7 +153,7 @@ export function Settings() {
             className="flex w-full items-center justify-between border border-paper/15 px-4 py-4 active:bg-paper/5"
           >
             <span className="flex items-center gap-3">
-              <ALargeSmall size={18} className={largeType ? undefined : 'text-paper/50'} />
+              <ALargeSmall size={18} className={largeType ? undefined : 'text-paper/60'} />
               <span className="text-left">
                 <span className="block text-base font-bold uppercase tracking-tight">Large type</span>
                 <span className="block font-mono font-semibold text-label tracking-[0.2em] text-paper/70">
@@ -212,7 +212,7 @@ export function Settings() {
             className="flex w-full items-center justify-between border border-paper/15 px-4 py-4 active:bg-paper/5"
           >
             <span className="flex items-center gap-3">
-              {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} className="text-paper/50" />}
+              {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} className="text-paper/60" />}
               <span className="text-left">
                 <span className="block text-base font-bold uppercase tracking-tight">Sound & haptics</span>
                 <span className="block font-mono font-semibold text-label tracking-[0.2em] text-paper/70">{soundEnabled ? 'ENABLED' : 'MUTED'}</span>
@@ -224,9 +224,9 @@ export function Settings() {
 
         {/* Danger zone */}
         <Section label="DANGER ZONE" hint="IRREVERSIBLE" accent>
-          <div className="border border-soviet/60">
-            <div className="flex items-start gap-3 border-b border-soviet/40 px-4 py-4">
-              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-soviet" />
+          <div className="border border-soviet-text/60">
+            <div className="flex items-start gap-3 border-b border-soviet-text/40 px-4 py-4">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-soviet-text" />
               <div>
                 <p className="text-base font-bold uppercase tracking-tight">Erase all data</p>
                 <p className="mt-1 text-sm text-paper/60">
@@ -239,14 +239,14 @@ export function Settings() {
               type="button"
               whileTap={{ scale: 0.985 }}
               onClick={confirmReset}
-              className="w-full py-4 font-mono text-xs font-bold tracking-[0.3em] text-soviet active:bg-soviet active:text-paper"
+              className="w-full py-4 font-mono text-xs font-bold tracking-[0.3em] text-soviet-text active:bg-soviet active:text-[#f4f1ea]"
             >
               CLEAR WORKOUTS & HISTORY
             </motion.button>
           </div>
         </Section>
 
-        <p className="mt-auto pt-6 text-center font-mono font-semibold text-label tracking-[0.22em] text-paper/50">
+        <p className="mt-auto pt-6 text-center font-mono font-semibold text-label tracking-[0.22em] text-paper/60">
           SHMONDENKO · PERIODISATION · DATA STAYS ON THIS DEVICE
         </p>
       </main>
@@ -271,11 +271,11 @@ function Section({
 }) {
   return (
     <section>
-      <div className={cn('flex items-baseline justify-between border-b pb-2', accent ? 'border-soviet/60' : 'border-paper/15')}>
-        <h2 className={cn('font-mono font-semibold text-caption tracking-[0.22em]', accent ? 'text-soviet' : 'text-paper/70')}>{label}</h2>
-        {hint && <span className={cn('font-mono font-semibold text-label tracking-[0.2em]', accent ? 'text-soviet/70' : 'text-paper/60')}>{hint}</span>}
+      <div className={cn('flex items-baseline justify-between border-b pb-2', accent ? 'border-soviet-text/60' : 'border-paper/15')}>
+        <h2 className={cn('font-mono font-semibold text-caption tracking-[0.22em]', accent ? 'text-soviet-text' : 'text-paper/70')}>{label}</h2>
+        {hint && <span className={cn('font-mono font-semibold text-label tracking-[0.2em]', accent ? 'text-soviet-text' : 'text-paper/60')}>{hint}</span>}
       </div>
-      {description && <p className="mt-3 text-sm leading-relaxed text-paper/55">{description}</p>}
+      {description && <p className="mt-3 text-sm leading-relaxed text-paper/65">{description}</p>}
       <div className="mt-4">{children}</div>
     </section>
   )
