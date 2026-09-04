@@ -1,4 +1,6 @@
-import type { CompletionLog, Workout, WorkoutPhase } from '../data/types'
+import { getExerciseInfo } from '../data/exercises'
+import { STOCK_WORKOUTS } from '../data/stockWorkouts'
+import type { BlockMode, CompletionLog, ProgramTrack, Workout, WorkoutPhase } from '../data/types'
 
 export const uid = (): string =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -91,3 +93,133 @@ export const totalSets = (w: Workout): number => w.blocks.reduce((a, b) => a + b
 
 export const cn = (...classes: Array<string | false | null | undefined>): string =>
   classes.filter(Boolean).join(' ')
+
+/* ------------------------------------------------------------------ */
+/* Exercise library — building blocks mined from the stock programme    */
+/* ------------------------------------------------------------------ */
+
+/** A unique exercise pulled out of the stock workouts, with typical prescription. */
+export interface LibraryExercise {
+  name: string
+  mode: BlockMode
+  workSeconds: number
+  reps: number
+  restSeconds: number
+  sets: number
+  /** Equipment tracks that programme this exercise. */
+  tracks: ProgramTrack[]
+  /** Category + muscles from the knowledge base, lowercased, for search. */
+  tags: string[]
+  /** Number of stock blocks that use it — doubles as a popularity rank. */
+  uses: number
+}
+
+/** Lowercase, alphanumerics only. "Pike Push-Ups" -> "pikepushups". */
+export const collapse = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+const median = (ns: number[]): number => {
+  const sorted = [...ns].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 1 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2)
+}
+
+const mostCommon = <T,>(xs: T[]): T => {
+  const counts = new Map<T, number>()
+  for (const x of xs) counts.set(x, (counts.get(x) ?? 0) + 1)
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0]
+}
+
+/**
+ * Collapses every block of every workout into a de-duplicated exercise list.
+ * Numeric defaults are medians across occurrences, so an exercise that is
+ * programmed at 45s in accumulation and 20s in intensification lands on a
+ * sane middle rather than whichever workout happened to be first.
+ */
+export const buildExerciseLibrary = (workouts: Workout[]): LibraryExercise[] => {
+  interface Acc {
+    name: string
+    modes: BlockMode[]
+    work: number[]
+    reps: number[]
+    rest: number[]
+    sets: number[]
+    tracks: Set<ProgramTrack>
+    uses: number
+  }
+  const byKey = new Map<string, Acc>()
+
+  for (const w of workouts) {
+    for (const b of w.blocks) {
+      const key = collapse(b.name)
+      if (!key) continue
+      let acc = byKey.get(key)
+      if (!acc) {
+        acc = { name: b.name, modes: [], work: [], reps: [], rest: [], sets: [], tracks: new Set(), uses: 0 }
+        byKey.set(key, acc)
+      }
+      acc.modes.push(b.mode)
+      if (b.workSeconds > 0) acc.work.push(b.workSeconds)
+      if (b.reps > 0) acc.reps.push(b.reps)
+      acc.rest.push(b.restSeconds)
+      acc.sets.push(b.sets)
+      if (w.program) acc.tracks.add(w.program)
+      acc.uses += 1
+    }
+  }
+
+  return [...byKey.values()]
+    .map((acc) => {
+      const info = getExerciseInfo(acc.name)
+      return {
+        name: acc.name,
+        mode: mostCommon(acc.modes),
+        workSeconds: acc.work.length ? median(acc.work) : 30,
+        reps: acc.reps.length ? median(acc.reps) : 10,
+        restSeconds: median(acc.rest),
+        sets: median(acc.sets),
+        tracks: (['home', 'outdoors', 'gym'] as ProgramTrack[]).filter((t) => acc.tracks.has(t)),
+        tags: info ? [info.category, ...info.muscles].map((t) => t.toLowerCase()) : [],
+        uses: acc.uses,
+      }
+    })
+    .sort((a, b) => b.uses - a.uses || a.name.localeCompare(b.name))
+}
+
+/** Every unique exercise in the stock programme, most-programmed first. */
+export const EXERCISE_LIBRARY: LibraryExercise[] = buildExerciseLibrary(STOCK_WORKOUTS)
+
+/**
+ * Ranks the library against a query. Tiers: name prefix, word prefix,
+ * name substring, then tag (category / muscle) match. Unmatched are dropped.
+ */
+export const searchExerciseLibrary = (
+  query: string,
+  library: LibraryExercise[] = EXERCISE_LIBRARY,
+): LibraryExercise[] => {
+  const q = collapse(query)
+  if (!q) return library
+
+  const scored: { item: LibraryExercise; tier: number }[] = []
+  for (const item of library) {
+    const name = collapse(item.name)
+    const words = item.name.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+    let tier: number | null = null
+
+    if (name.startsWith(q)) tier = 0
+    else if (words.some((w) => w.startsWith(q))) tier = 1
+    else if (name.includes(q)) tier = 2
+    else if (item.tags.some((t) => collapse(t).includes(q))) tier = 3
+    else {
+      // Multi-word queries: every token must land somewhere in name or tags.
+      const tokens = query.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+      const haystack = name + collapse(item.tags.join(' '))
+      if (tokens.length > 1 && tokens.every((t) => haystack.includes(collapse(t)))) tier = 4
+    }
+
+    if (tier !== null) scored.push({ item, tier })
+  }
+
+  return scored
+    .sort((a, b) => a.tier - b.tier || b.item.uses - a.item.uses || a.item.name.localeCompare(b.item.name))
+    .map((s) => s.item)
+}
