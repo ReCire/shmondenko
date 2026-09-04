@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, Reorder, motion, useDragControls } from 'framer-motion'
 import { ArrowLeft, GripVertical, Library, Plus, Trash2 } from 'lucide-react'
 import type { ExerciseBlock } from '../data/types'
@@ -12,6 +11,9 @@ import {
   uid,
   type LibraryExercise,
 } from '../lib/utils'
+
+/** Distance from the viewport top that a focused block is parked at. */
+const SCROLL_MARGIN = 120
 
 const newBlock = (): ExerciseBlock => ({
   id: uid(),
@@ -38,6 +40,9 @@ export function WorkoutCreator({ editId }: Props) {
   const [touched, setTouched] = useState(false)
   /** Block whose name field should grab focus (and pop the library) on mount. */
   const [focusId, setFocusId] = useState<string | null>(null)
+  /** Only one block's library is ever open; the parent owns it so the sticky
+   *  save bar can retract out of the list's way. */
+  const [openPickerId, setOpenPickerId] = useState<string | null>(null)
 
   const updateBlock = (id: string, patch: Partial<ExerciseBlock>) =>
     setBlocks((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)))
@@ -146,6 +151,8 @@ export function WorkoutCreator({ editId }: Props) {
                   showError={touched && b.name.trim().length === 0}
                   canRemove={blocks.length > 1}
                   autoFocus={b.id === focusId}
+                  pickerOpen={openPickerId === b.id}
+                  onPickerOpenChange={(v) => setOpenPickerId(v ? b.id : null)}
                   onChange={(patch) => updateBlock(b.id, patch)}
                   onRemove={() => removeBlock(b.id)}
                 />
@@ -163,8 +170,17 @@ export function WorkoutCreator({ editId }: Props) {
         </section>
       </main>
 
-      {/* Sticky save */}
-      <div className="fixed inset-x-0 bottom-0 mx-auto max-w-lg bg-gradient-to-t from-ink via-ink/95 to-transparent px-6 pt-8 safe-pb">
+      {/* Sticky save — slides away while a library is open so it can't cover
+          the suggestion list on platforms that dock it above the keyboard. */}
+      <motion.div
+        animate={{ y: openPickerId ? 160 : 0 }}
+        transition={{ type: 'spring', stiffness: 520, damping: 42 }}
+        aria-hidden={openPickerId !== null}
+        className={cn(
+          'fixed inset-x-0 bottom-0 mx-auto max-w-lg bg-gradient-to-t from-ink via-ink/95 to-transparent px-6 pt-8 safe-pb',
+          openPickerId && 'pointer-events-none',
+        )}
+      >
         <motion.button
           type="button"
           whileTap={{ scale: 0.985 }}
@@ -176,7 +192,7 @@ export function WorkoutCreator({ editId }: Props) {
         >
           {existing ? 'Save Changes' : 'Save Workout'}
         </motion.button>
-      </div>
+      </motion.div>
     </div>
   )
 }
@@ -189,17 +205,28 @@ interface BlockEditorProps {
   showError: boolean
   canRemove: boolean
   autoFocus: boolean
+  pickerOpen: boolean
+  onPickerOpenChange: (open: boolean) => void
   onChange: (patch: Partial<ExerciseBlock>) => void
   onRemove: () => void
 }
 
-function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, onRemove }: BlockEditorProps) {
+function BlockEditor({
+  block,
+  index,
+  showError,
+  canRemove,
+  autoFocus,
+  pickerOpen: open,
+  onPickerOpenChange: setOpen,
+  onChange,
+  onRemove,
+}: BlockEditorProps) {
   // Drag is bound to the grip only, so typing / picking never nudges the order.
   const dragControls = useDragControls()
   const containerRef = useRef<HTMLLIElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const [open, setOpen] = useState(false)
 
   const matches = useMemo(() => searchExerciseLibrary(block.name), [block.name])
 
@@ -208,6 +235,25 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
   useEffect(() => {
     if (shouldAutoFocus.current) inputRef.current?.focus()
   }, [])
+
+  // iOS lifts the page for the soft keyboard, which can push this row off the
+  // top; a sibling drawer collapsing at the same time shifts it again. So park
+  // the block below the header twice — once after the keyboard settles, once
+  // after any collapse — and no-op if it is already there or the user has
+  // moved on.
+  const parkBlockBelowHeader = () => {
+    const el = containerRef.current
+    if (!el || document.activeElement !== inputRef.current) return
+    if (Math.abs(el.getBoundingClientRect().top - SCROLL_MARGIN) < 24) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  useEffect(() => {
+    const timers = [window.setTimeout(parkBlockBelowHeader, 300), window.setTimeout(parkBlockBelowHeader, 650)]
+    return () => timers.forEach(clearTimeout)
+    // Re-parks whenever this block's library opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
 
   const pick = (ex: LibraryExercise) => {
     onChange({
@@ -232,8 +278,9 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0, marginBottom: -12 }}
       transition={{ duration: 0.22 }}
+      style={{ '--block-scroll-margin': `${SCROLL_MARGIN}px` } as React.CSSProperties}
       className={cn(
-        'relative border bg-ink transition-colors scroll-mt-[120px]',
+        'relative border bg-ink transition-colors scroll-mt-(--block-scroll-margin)',
         open ? 'border-paper/60' : 'border-paper/15',
       )}
     >
@@ -256,15 +303,7 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
             onChange({ name: e.target.value })
             setOpen(true)
           }}
-          onFocus={() => {
-            setOpen(true)
-            // iOS lifts the page for the soft keyboard, which can push this row
-            // off the top. Once the keyboard has settled, pull the block back to
-            // the top of the viewport (scroll-mt keeps it clear of the header).
-            window.setTimeout(() => {
-              containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }, 300)
-          }}
+          onFocus={() => setOpen(true)}
           role="combobox"
           aria-expanded={open}
           aria-autocomplete="list"
@@ -311,7 +350,7 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
         open={open}
         query={block.name}
         matches={matches}
-        anchorRef={rowRef}
+        rowRef={rowRef}
         inputRef={inputRef}
         onPick={pick}
         onOpen={() => setOpen(true)}
@@ -366,21 +405,12 @@ function BlockEditor({ block, index, showError, canRemove, autoFocus, onChange, 
 /** Rendered rows are capped so a blank query stays instant on a phone. */
 const MAX_ROWS = 32
 
-interface Anchor {
-  left: number
-  width: number
-  top?: number
-  bottom?: number
-  maxHeight: number
-  placement: 'below' | 'above'
-}
-
 interface PaletteProps {
   id: string
   open: boolean
   query: string
   matches: LibraryExercise[]
-  anchorRef: React.RefObject<HTMLDivElement | null>
+  rowRef: React.RefObject<HTMLDivElement | null>
   inputRef: React.RefObject<HTMLInputElement | null>
   onPick: (ex: LibraryExercise) => void
   onOpen: () => void
@@ -388,15 +418,19 @@ interface PaletteProps {
 }
 
 /**
- * Command-palette dropdown glued to the block's name row. Rendered in a portal
- * so it escapes the Reorder.Item stacking context, and positioned `fixed` from
- * a live measurement of the anchor — it stays welded to the row while the page
- * scrolls or the soft keyboard resizes the visual viewport.
+ * Command-palette drawer that expands in flow directly beneath the block's name
+ * row. It is deliberately NOT a floating/fixed panel: on iOS the soft keyboard
+ * offsets the visual viewport while `position: fixed` stays pinned to the layout
+ * viewport, so an anchored panel drifts over the very input you are typing in.
+ * In flow, the input is always above the list by construction — the only
+ * viewport math left is a max-height, where being a few pixels stale is
+ * harmless.
  */
-function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick, onOpen, onClose }: PaletteProps) {
-  const [anchor, setAnchor] = useState<Anchor | null>(null)
+function ExercisePalette({ id, open, query, matches, rowRef, inputRef, onPick, onOpen, onClose }: PaletteProps) {
+  const [maxHeight, setMaxHeight] = useState(300)
   const [active, setActive] = useState(0)
   const [lastQuery, setLastQuery] = useState(query)
+  const paletteRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
   // Re-typing restarts the highlight at the top match, adjusted during render
@@ -408,47 +442,35 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
 
   const shown = matches.slice(0, MAX_ROWS)
 
-  const measure = useCallback(() => {
-    const el = anchorRef.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    const vv = window.visualViewport
-    const viewTop = vv?.offsetTop ?? 0
-    const viewBottom = viewTop + (vv?.height ?? window.innerHeight)
-    const gap = 8
-    const below = viewBottom - r.bottom - gap
-    const above = r.top - viewTop - gap
-    const useBelow = below >= 190 || below >= above
-    setAnchor({
-      left: r.left,
-      width: r.width,
-      top: useBelow ? r.bottom + gap : undefined,
-      bottom: useBelow ? undefined : window.innerHeight - r.top + gap,
-      maxHeight: Math.max(150, Math.min(340, useBelow ? below : above)),
-      placement: useBelow ? 'below' : 'above',
-    })
-  }, [anchorRef])
-
-  useLayoutEffect(() => {
+  // Fit the list into whatever is left between the name row and the top of the
+  // keyboard. visualViewport reports the keyboard; both readings are in layout
+  // coordinates, so the subtraction stays valid even while iOS is offset.
+  useEffect(() => {
     if (!open) return
+    const measure = () => {
+      const r = rowRef.current?.getBoundingClientRect()
+      const vv = window.visualViewport
+      const viewBottom = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight)
+      // 56px covers the drawer's own header strip, its bottom border, and a
+      // little breathing room, so the last row never sits under the fold.
+      const room = r ? viewBottom - r.bottom - 56 : 300
+      setMaxHeight(Math.round(Math.max(150, Math.min(340, room))))
+    }
     measure()
-    const onViewport = () => {
-      // Freeze the position once focus leaves the input (i.e. the user is
-      // reaching into the list) so a closing keyboard can't yank rows away
-      // from under their finger mid-tap.
+    // Only track while the field itself has focus: once the user reaches into
+    // the list, the height stops moving under their finger.
+    const onMove = () => {
       if (document.activeElement === inputRef.current) measure()
     }
-    window.addEventListener('scroll', measure, true)
-    window.addEventListener('resize', measure)
-    window.visualViewport?.addEventListener('resize', onViewport)
-    window.visualViewport?.addEventListener('scroll', onViewport)
+    window.addEventListener('resize', onMove)
+    window.addEventListener('scroll', onMove, true)
+    window.visualViewport?.addEventListener('resize', onMove)
     return () => {
-      window.removeEventListener('scroll', measure, true)
-      window.removeEventListener('resize', measure)
-      window.visualViewport?.removeEventListener('resize', onViewport)
-      window.visualViewport?.removeEventListener('scroll', onViewport)
+      window.removeEventListener('resize', onMove)
+      window.removeEventListener('scroll', onMove, true)
+      window.visualViewport?.removeEventListener('resize', onMove)
     }
-  }, [open, measure, inputRef])
+  }, [open, rowRef, inputRef])
 
   // Focus moving to another control (Tab, or another block's field) dismisses.
   // A null relatedTarget — a touch landing on a non-focusable node — is left to
@@ -459,12 +481,12 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
     const onBlur = (e: FocusEvent) => {
       const next = e.relatedTarget as Node | null
       if (!next) return
-      if (anchorRef.current?.contains(next) || listRef.current?.parentElement?.contains(next)) return
+      if (rowRef.current?.contains(next) || paletteRef.current?.contains(next)) return
       onClose()
     }
     el.addEventListener('blur', onBlur)
     return () => el.removeEventListener('blur', onBlur)
-  }, [open, anchorRef, inputRef, onClose])
+  }, [open, rowRef, inputRef, onClose])
 
   // Dismiss on any pointer landing outside the row and the palette.
   useEffect(() => {
@@ -472,12 +494,12 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
     const onDown = (e: PointerEvent) => {
       const t = e.target as Node | null
       if (!t) return
-      if (anchorRef.current?.contains(t) || listRef.current?.parentElement?.contains(t)) return
+      if (rowRef.current?.contains(t) || paletteRef.current?.contains(t)) return
       onClose()
     }
     document.addEventListener('pointerdown', onDown, true)
     return () => document.removeEventListener('pointerdown', onDown, true)
-  }, [open, anchorRef, onClose])
+  }, [open, rowRef, onClose])
 
   // Keyboard driving: ↑/↓ walk the list, Enter fills, Esc dismisses.
   useEffect(() => {
@@ -522,36 +544,34 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
     listRef.current?.querySelector(`[data-idx="${active}"]`)?.scrollIntoView({ block: 'nearest' })
   }, [active])
 
-  if (typeof document === 'undefined') return null
-
-  return createPortal(
-    <AnimatePresence>
-      {open && anchor && (
+  return (
+    <AnimatePresence initial={false}>
+      {open && (
         <motion.div
-          key={id}
-          initial={{ opacity: 0, y: anchor.placement === 'below' ? -10 : 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          key="palette"
+          ref={paletteRef}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
           // pointerEvents is dropped the instant it starts leaving, so a tap can
-          // never land on a palette that is only still on screen for the fade.
-          exit={{ opacity: 0, y: anchor.placement === 'below' ? -6 : 6, pointerEvents: 'none' }}
-          transition={{ type: 'spring', stiffness: 780, damping: 46, mass: 0.5 }}
-          style={{
-            left: anchor.left,
-            width: anchor.width,
-            top: anchor.top,
-            bottom: anchor.bottom,
-            maxHeight: anchor.maxHeight,
-          }}
-          className="fixed z-40 flex flex-col border-[3px] border-paper bg-ink shadow-[0_32px_80px_-24px_rgba(0,0,0,0.9)]"
+          // never land on a list that is only still on screen for the collapse.
+          exit={{ height: 0, opacity: 0, pointerEvents: 'none' }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="overflow-hidden border-b-2 border-paper bg-ink"
         >
-          <div className="flex shrink-0 items-center justify-between border-b-[3px] border-paper px-3 py-1.5">
+          <div className="flex items-center justify-between border-b border-paper/15 bg-paper/5 px-3 py-1.5">
             <span className="font-mono text-[10px] tracking-[0.3em] text-paper/60">
               {query.trim() ? `MATCHES · ${matches.length}` : `LIBRARY · ${matches.length}`}
             </span>
             <span className="font-mono text-[10px] tracking-[0.3em] text-soviet">TAP TO FILL</span>
           </div>
 
-          <div ref={listRef} id={id} role="listbox" className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div
+            ref={listRef}
+            id={id}
+            role="listbox"
+            style={{ maxHeight }}
+            className="overflow-y-auto overscroll-contain"
+          >
             {shown.length === 0 ? (
               <p className="px-3 py-5 font-mono text-[11px] leading-relaxed tracking-[0.2em] text-paper/45">
                 NO MATCH IN LIBRARY.
@@ -609,8 +629,7 @@ function ExercisePalette({ id, open, query, matches, anchorRef, inputRef, onPick
           </div>
         </motion.div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   )
 }
 
