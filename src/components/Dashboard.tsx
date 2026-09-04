@@ -82,9 +82,9 @@ export function Dashboard() {
           type="button"
           onClick={() => navigate({ name: 'settings' })}
           aria-label="Settings"
-          className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center border border-paper/15 text-paper/60 active:bg-paper/10"
+          className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center border border-soviet-text text-soviet-text active:bg-soviet-text/15"
         >
-          <Settings2 size={16} />
+          <Settings2 size={20} />
         </button>
       </header>
 
